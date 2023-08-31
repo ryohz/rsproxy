@@ -1,0 +1,37 @@
+.bar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  background-color: #262626;
+}
+.bar .icons {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.bar .icons .icon {
+  color: #e2e8f0;
+  font-size: 25px;
+}
+.bar .icons .icon:hover {
+  color: #d946ef;
+  cursor: pointer;
+}
+.bar .icons .other {
+  margin-bottom: 15px;
+}
+.bar .icons .feature {
+  margin-top: 15px;
+}
+.bar .icons .selected {
+  color: #d946ef;
+}
+.bar .others:first-child {
+  margin-top: 30px;
+}
+.bar .features:last-child {
+  margin-bottom: 30px;
+}/*# sourceMappingURL=sidebar.css.map */

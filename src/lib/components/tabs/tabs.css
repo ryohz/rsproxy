@@ -1,0 +1,18 @@
+.tabs {
+  display: flex;
+  flex-direction: row;
+  background-color: #262626;
+}
+.tabs .tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100px;
+}
+.tabs .tab:hover {
+  cursor: pointer;
+}
+.tabs .selected {
+  background-color: #171717;
+}/*# sourceMappingURL=tabs.css.map */

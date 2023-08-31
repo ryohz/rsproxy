@@ -1,0 +1,26 @@
+@use "../../../scss/rule";
+@use "../../../scss/theme";
+
+.tabs {
+    display: flex;
+    flex-direction: row;
+    background-color: theme.$black-alt;
+
+    .tab {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        width: rule.$content-size-medium-1;
+
+        &:hover {
+            cursor: pointer;
+        }
+    }
+    
+    .selected {
+        background-color: theme.$black;
+    }
+}
+
+

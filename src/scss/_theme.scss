@@ -1,0 +1,25 @@
+$theme: (
+    black: #171717,
+    black-alt: #262626,
+    gray: #404040,
+    gray-alt: #78716c,
+    white: #e2e8f0,
+    white-alt: #f8fafc,
+    red: #dc2626,
+    yellow: #eab308,
+    green: #16a34a,
+    blue: #2563eb,
+    accent: #d946ef
+);
+
+$black: map-get($theme, black);
+$black-alt: map-get($theme, black-alt);
+$gray: map-get($theme, gray);
+$gray-alt: map-get($theme, gray-alt);
+$white: map-get($theme, white);
+$white-alt: map-get($theme, white-alt);
+$red: map-get($theme, red);
+$yellow: map-get($theme, yellow);
+$green: map-get($theme, green);
+$blue: map-get($theme, blue);
+$accent: map-get($theme, accent);

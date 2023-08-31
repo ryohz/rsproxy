@@ -1,0 +1,13 @@
+@use "../../../scss/theme";
+
+.box {
+    display: grid;
+
+    .border {
+        background-color: theme.$red;
+        
+        &:hover{
+            cursor: row-resize;
+        }
+    }
+}

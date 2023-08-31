@@ -1,0 +1,50 @@
+@use "../../../scss/theme";
+@use "../../../scss/rule";
+
+.bar {
+    // position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    background-color: theme.$black-alt;
+
+    // ** icons
+    .icons {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        .icon {
+            color: theme.$white;
+            font-size: rule.$unit-size-small-3;
+        }
+
+        .icon:hover {
+            color: theme.$accent;
+            cursor: pointer;
+        }
+
+        .other {
+            margin-bottom: rule.$unit-size-small-1;
+        }
+
+        .feature {
+            margin-top: rule.$unit-size-small-1;
+        }
+
+        .selected {
+            color: theme.$accent;
+        }
+    }
+
+    .others:first-child {
+        margin-top: rule.$content-size-small-1;
+    }
+
+    .features:last-child {
+        margin-bottom: rule.$content-size-small-1;
+    }
+}

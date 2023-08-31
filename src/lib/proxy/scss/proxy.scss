@@ -1,0 +1,7 @@
+@use "../../../scss/rule";
+@use "../../../scss/theme";
+
+.proxy {
+    display: grid;
+    grid-template-rows: rule.$content-size-small-1 calc(100% - #{rule.$content-size-small-1});
+}

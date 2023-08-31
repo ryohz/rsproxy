@@ -1,17 +1,32 @@
 <script lang="ts">
-    import { emit, listen } from "@tauri-apps/api/event";
+    import Sidebar from "./lib/components/sidebar/Sidebar.svelte";
+    import { features } from "./features";
+    import "./scss/app.css";
 
-    let unlisten1: any;
-    let unlisten2: any;
-    async function f() {
-        unlisten1 = await listen("proxy_request", (event) => {
-            console.log(event);
-        });
-        unlisten2 = await listen("proxy_response", (event) => {
-            console.log(event);
-        });
+    let current_mode = features.names()[0];
+    function update_mode(mode: string) {
+        current_mode = mode;
     }
-    f();
 </script>
 
-<button>heelo</button>
+<svelte:head>
+    <link rel="preconnect" href="https://rsms.me/" />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+</svelte:head>
+
+<!-- <body> -->
+<div class="app">
+    <Sidebar
+        position="left"
+        objects={features.sidebar_objects()}
+        update={update_mode}
+        {current_mode}
+    />
+
+    {#each features.all as feature}
+        {#if feature.name === current_mode}
+            <svelte:component this={feature.element} />
+        {/if}
+    {/each}
+</div>
+<!-- </body> -->

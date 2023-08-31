@@ -1,0 +1,9 @@
+.box {
+  display: grid;
+}
+.box .border {
+  background-color: #dc2626;
+}
+.box .border:hover {
+  cursor: row-resize;
+}/*# sourceMappingURL=box.css.map */

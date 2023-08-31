@@ -4,37 +4,35 @@ use std::{
     net::SocketAddr,
     sync::{Arc, Mutex},
 };
+use tokio::sync::mpsc::Sender;
 
 use hyper::Server;
 use thiserror::Error;
 
-use crate::exchange::Exchange;
+use crate::types::{
+    BodyString, HeadersJson, MethodString, Request, Response, StatusNumber, UrlString,
+};
 
 pub async fn run_proxy_server(
-    current_request: Arc<Mutex<Exchange>>,
-    current_response: Arc<Mutex<Exchange>>,
-    pilot_state: Arc<Mutex<bool>>,
+    request_tx: Sender<Request>,
+    response_tx: Sender<Response>, // pilot_state: Arc<Mutex<bool>>,
 ) {
     let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
     let make_service = hyper::service::make_service_fn(move |_conn| {
-        let current_request = current_request.clone();
-        let current_response = current_response.clone();
-        let pilot_state = pilot_state.clone();
+        let request_tx = request_tx.clone();
+        let response_tx = response_tx.clone();
+        // let pilot_state = pilot_state.clone();
         async move {
             Ok::<_, Infallible>(hyper::service::service_fn(
                 move |request: hyper::Request<hyper::Body>| {
-                    let current_request = current_request.clone();
-                    let current_response = current_response.clone();
-                    let pilot_state = pilot_state.clone();
+                    // let pilot_state = pilot_state.clone();
+                    let request_tx = request_tx.clone();
+                    let response_tx = response_tx.clone();
                     async move {
-                        Ok::<_, Infallible>(
-                            match handle(request, current_request, current_response, pilot_state)
-                                .await
-                            {
-                                Ok(response) => response,
-                                Err(error_response) => error_response,
-                            },
-                        )
+                        Ok::<_, Infallible>(match handle(request, request_tx, response_tx).await {
+                            Ok(response) => response,
+                            Err(error_response) => error_response,
+                        })
                     }
                 },
             ))
@@ -62,14 +60,14 @@ enum ProxyError {
     InvalidMethodError,
     #[error("reqwest error")]
     ReqwestError(#[from] reqwest::Error),
-    #[error("request store error")]
-    RequestStore(String),
+    #[error("Request information is insufficient: {0}")]
+    RequestInformationInsufficient(String),
+    #[error("Response information is insufficient: {0}")]
+    ResponseInformationInsufficient(String),
     #[error("serde json error")]
     SerdeJson(#[from] serde_json::Error),
     #[error("std io error")]
     Io(#[from] std::io::Error),
-    #[error("response store error")]
-    ResponseStore(String),
     #[error("convert response error")]
     ConvertResponse(String),
     #[error("Communication using TLS is not yet supported")]
@@ -81,9 +79,9 @@ enum ProxyError {
 // ** ####################################################################################################
 async fn handle(
     request: hyper::Request<hyper::Body>,
-    current_request: Arc<Mutex<Exchange>>,
-    current_response: Arc<Mutex<Exchange>>,
-    pilot_state: Arc<Mutex<bool>>,
+    request_tx: Sender<Request>,
+    response_tx: Sender<Response>,
+    // pilot_state: Arc<Mutex<bool>>,
 ) -> Result<hyper::Response<hyper::Body>, hyper::Response<hyper::Body>> {
     // ** convert hyper request to reqwest request
     let reqw_request = hyper2reqwest(request).await;
@@ -92,21 +90,21 @@ async fn handle(
     }
     let reqw_request = reqw_request.unwrap();
 
-    let mut exchange = VolatileExchange::new(reqw_request, false);
+    let mut exchange = VolatileExchange::new(reqw_request);
 
     // ** get request headers and body, and set them to exchange's property
     let result = exchange.fetch_request().await;
     if let Err(error) = result {
         return Err(generate_error_response(error));
     }
-    exchange.set_current_requeste(current_request).await;
+    exchange.set_current_request(request_tx).await;
 
     // ** communicate with remote host, get response from it, and set headers and body to exchange's property
     let result = exchange.fetch_response().await;
     if let Err(error) = result {
         return Err(generate_error_response(error));
     }
-    exchange.set_current_response(current_response).await;
+    exchange.set_current_response(response_tx).await;
 
     if let Some(reqw_response) = exchange.response {
         let response = reqwest2hyper(reqw_response).await;
@@ -129,10 +127,14 @@ struct VolatileExchange {
     response_body: Option<String>,
     request_headers: Option<String>,
     response_headers: Option<String>,
+    request_url: Option<String>,
+    response_url: Option<String>,
+    request_method: Option<String>,
+    response_status: Option<u16>,
 }
 
 impl VolatileExchange {
-    fn new(request: reqwest::Request, pilot_flag: bool) -> Self {
+    fn new(request: reqwest::Request) -> Self {
         VolatileExchange {
             request,
             response: None,
@@ -140,6 +142,10 @@ impl VolatileExchange {
             response_headers: None,
             request_body: None,
             response_body: None,
+            request_url: None,
+            response_url: None,
+            request_method: None,
+            response_status: None,
         }
     }
 
@@ -154,6 +160,14 @@ impl VolatileExchange {
         }
         let headers_json = serde_json::to_string(&headers_hashmap)?;
         self.request_headers = Some(headers_json);
+
+        // ** url
+        let url = self.request.url();
+        self.request_url = Some(url.to_string());
+
+        // ** method
+        let method = self.request.method();
+        self.request_method = Some(method.to_string());
 
         // ** body
         let request_body = self.request.body().unwrap();
@@ -186,6 +200,14 @@ impl VolatileExchange {
         let headers_json = serde_json::to_string(&headers_hashmap)?;
         self.response_headers = Some(headers_json);
 
+        // ** url
+        let url = response.url();
+        self.response_url = Some(url.to_string());
+
+        // ** status
+        let status = response.status();
+        self.response_status = Some(status.as_u16());
+
         // ** body
         let body_text = response.text().await?;
         self.response_body = Some(body_text.to_owned());
@@ -201,54 +223,86 @@ impl VolatileExchange {
         Ok(())
     }
 
-    fn get_request(&self) -> Result<(String, String), ProxyError> {
+    fn get_request(
+        &self,
+    ) -> Result<(HeadersJson, BodyString, UrlString, MethodString), ProxyError> {
         if let Some(header) = self.request_headers.clone() {
             if let Some(body) = self.request_body.clone() {
-                let header = header;
-                let body = body;
-                Ok((header, body))
+                if let Some(url) = self.request_url.clone() {
+                    if let Some(method) = self.request_method.clone() {
+                        Ok((header, body, url, method))
+                    } else {
+                        Err(ProxyError::RequestInformationInsufficient(
+                            "request method isn't set for volatile exchange".to_string(),
+                        ))
+                    }
+                } else {
+                    Err(ProxyError::RequestInformationInsufficient(
+                        "request url isn't set for volatile exchange".to_string(),
+                    ))
+                }
             } else {
-                Err(ProxyError::RequestStore(
-                    "request body isn't set".to_string(),
+                Err(ProxyError::RequestInformationInsufficient(
+                    "request body isn't set for volatile exchange".to_string(),
                 ))
             }
         } else {
-            Err(ProxyError::RequestStore(
-                "request header isn't set".to_string(),
+            Err(ProxyError::RequestInformationInsufficient(
+                "request header isn't set for volatile exchange".to_string(),
             ))
         }
     }
 
-    fn get_response(&self) -> Result<(String, String), ProxyError> {
+    fn get_response(
+        &self,
+    ) -> Result<(HeadersJson, BodyString, UrlString, StatusNumber), ProxyError> {
         if let Some(header) = self.response_headers.clone() {
             if let Some(body) = self.response_body.clone() {
-                let header = header;
-                let body = body;
-                Ok((header, body))
+                if let Some(url) = self.response_url.clone() {
+                    if let Some(status) = self.response_status {
+                        Ok((header, body, url, status))
+                    } else {
+                        Err(ProxyError::ResponseInformationInsufficient(
+                            "response status isn't set".to_string(),
+                        ))
+                    }
+                } else {
+                    Err(ProxyError::ResponseInformationInsufficient(
+                        "response url isn't set".to_string(),
+                    ))
+                }
             } else {
-                Err(ProxyError::ResponseStore(
+                Err(ProxyError::ResponseInformationInsufficient(
                     "response body isn't set".to_string(),
                 ))
             }
         } else {
-            Err(ProxyError::ResponseStore(
+            Err(ProxyError::ResponseInformationInsufficient(
                 "response header isn't set".to_string(),
             ))
         }
     }
 
-    async fn set_current_requeste(&self, current_request: Arc<Mutex<Exchange>>) {
-        let mut current_request = current_request.lock().unwrap();
-        let (headers, body) = self.get_request().unwrap();
-        current_request.headers = headers;
-        current_request.body = body;
+    async fn set_current_request(&self, request_tx: Sender<Request>) {
+        let (headers, body, url, method) = self.get_request().unwrap();
+        let request = Request {
+            headers,
+            body,
+            url,
+            method,
+        };
+        request_tx.send(request).await.unwrap();
     }
 
-    async fn set_current_response(&self, current_response: Arc<Mutex<Exchange>>) {
-        let mut current_response = current_response.lock().unwrap();
-        let (headers, body) = self.get_response().unwrap();
-        current_response.headers = headers;
-        current_response.body = body;
+    async fn set_current_response(&self, response_tx: Sender<Response>) {
+        let (headers, body, url, status) = self.get_response().unwrap();
+        let response = Response {
+            headers,
+            body,
+            url,
+            status,
+        };
+        response_tx.send(response).await.unwrap();
     }
 }
 

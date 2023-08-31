@@ -1,0 +1,10 @@
+@use "./theme";
+
+body {
+    background-color: theme.$black;
+    color: theme.$white;
+}
+
+p {
+    font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+}
