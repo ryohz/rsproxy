@@ -1,19 +1,16 @@
 <script lang="ts">
-    import { get, writable } from "svelte/store";
     import "./box.css";
+    import type { Component } from "../../types";
+    import { afterUpdate } from "svelte";
 
-    export let components: any[];
-
-    while (components.length !== 2) {
-        components = components.pop();
-    }
+    export let components: Component[];
 
     // export let dif = 0;
     export let dif = 0;
     let origin: number;
     let state = false;
 
-    let border_size = "5px";
+    let border_size = "4px";
     let top_size = `calc(50% - (${border_size} / 2) + ${
         dif.toString() + "px"
     })`;
@@ -46,27 +43,29 @@
 
     function stop_resize(event) {
         state = false;
-        // origin += event.clientY;
     }
+
+    afterUpdate(() => {
+        console.log(grid_template_rows);
+    });
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- <div class='entire'> -->
 <div
     class="box"
     on:mouseup={stop_resize}
     on:mousemove={resize}
     style={grid_template_rows}
 >
-    {#each components as component}
-        <svelte:component this={component} />
-        {#if components[components.length - 1] !== component}
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <div
-                class="border"
-                on:mousedown={init_orogin}
-                on:mousemove={resize}
-                on:mouseup={stop_resize}
-            />
-        {/if}
-    {/each}
+    <svelte:component this={components[0].component} {...components[0].props} />
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <div
+        class="border"
+        on:mousedown={init_orogin}
+        on:mousemove={resize}
+        on:mouseup={stop_resize}
+    />
+    <svelte:component this={components[1].component} {...components[1].props} />
 </div>
+<!-- </div> -->

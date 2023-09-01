@@ -3,5 +3,5 @@
 
 .proxy {
     display: grid;
-    grid-template-rows: rule.$content-size-small-1 calc(100% - #{rule.$content-size-small-1});
+    grid-template-rows: rule.$unit-size-small-2 calc(100% - #{rule.$content-size-small-1});
 }

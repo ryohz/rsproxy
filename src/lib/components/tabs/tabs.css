@@ -1,7 +1,7 @@
 .tabs {
   display: flex;
   flex-direction: row;
-  background-color: #262626;
+  background-color: #292524;
 }
 .tabs .tab {
   display: flex;
@@ -13,6 +13,9 @@
 .tabs .tab:hover {
   cursor: pointer;
 }
+.tabs .tab .name {
+  font-size: small;
+}
 .tabs .selected {
-  background-color: #171717;
+  background-color: #0c0a09;
 }/*# sourceMappingURL=tabs.css.map */

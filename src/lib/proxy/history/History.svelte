@@ -1,14 +1,31 @@
-<script>
-    import { listen } from "@tauri-apps/api/event";
+<script lang="ts">
     import "./scss/history.css";
 
     import Box from "../../components/box/Box.svelte";
-    import Viewer from "./Viewer.svelte";
-    import Dummy from "../../components/dummy/Dummy.svelte";
+    import ExchangeEditor from "../../components/exchangeEditor/ExchangeEditor.svelte";
+    import { get } from "svelte/store";
+    import List from "./List.svelte";
+    import type { Exchange } from "../../types";
+    import { current_history_exchange } from "../../datas";
+    import { afterUpdate } from "svelte";
 
-    let components = [Viewer, Dummy];
+    export let current_exchange: Exchange = get(current_history_exchange);
+
+    current_history_exchange.subscribe(() => {
+        current_exchange = get(current_history_exchange);
+    });
 </script>
 
 <div class="history">
-    <Box {components} />
+    <Box
+        components={[
+            { component: List, props: undefined },
+            {
+                component: ExchangeEditor,
+                props: {
+                    current_exchange: current_exchange,
+                },
+            },
+        ]}
+    />
 </div>

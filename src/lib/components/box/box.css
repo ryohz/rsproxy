@@ -1,8 +1,12 @@
+body {
+  overflow: hidden;
+}
+
 .box {
   display: grid;
 }
 .box .border {
-  background-color: #dc2626;
+  background-color: #292524;
 }
 .box .border:hover {
   cursor: row-resize;

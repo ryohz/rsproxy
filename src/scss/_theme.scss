@@ -1,10 +1,16 @@
 $theme: (
-    black: #171717,
-    black-alt: #262626,
-    gray: #404040,
-    gray-alt: #78716c,
-    white: #e2e8f0,
-    white-alt: #f8fafc,
+    black1: #0c0a09,
+    black2: #1c1917,
+    black3: #292524,
+
+    gray1: #57534e,
+    gray2: #78716c,
+    gray3: #a8a29e,
+
+    white1: #e7e5e4,
+    white2: #f5f5f4,
+    white3: #fafaf9,
+
     red: #dc2626,
     yellow: #eab308,
     green: #16a34a,
@@ -12,12 +18,18 @@ $theme: (
     accent: #d946ef
 );
 
-$black: map-get($theme, black);
-$black-alt: map-get($theme, black-alt);
-$gray: map-get($theme, gray);
-$gray-alt: map-get($theme, gray-alt);
-$white: map-get($theme, white);
-$white-alt: map-get($theme, white-alt);
+$black1: map-get($theme, black1);
+$black2: map-get($theme, black2);
+$black3: map-get($theme, black3);
+
+$gray1: map-get($theme, gray1);
+$gray2: map-get($theme, gray2);
+$gray3: map-get($theme, gray3);
+
+$white1: map-get($theme, white1);
+$white2: map-get($theme, white2);
+$white3: map-get($theme, white3);
+
 $red: map-get($theme, red);
 $yellow: map-get($theme, yellow);
 $green: map-get($theme, green);

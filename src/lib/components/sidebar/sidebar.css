@@ -3,7 +3,7 @@
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
-  background-color: #262626;
+  background-color: #292524;
 }
 .bar .icons {
   position: relative;
@@ -13,7 +13,7 @@
   align-items: center;
 }
 .bar .icons .icon {
-  color: #e2e8f0;
+  color: #e7e5e4;
   font-size: 25px;
 }
 .bar .icons .icon:hover {

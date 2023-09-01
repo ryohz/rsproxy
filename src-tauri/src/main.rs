@@ -35,7 +35,6 @@ async fn main() {
             let request_app_handle = app.app_handle();
             tokio::spawn(async move {
                 while let Some(request) = request_rx.recv().await {
-                    println!("hello");
                     let json = serde_json::to_string(&request).unwrap();
                     request_app_handle.emit_all("proxy_request", json).unwrap();
                 }

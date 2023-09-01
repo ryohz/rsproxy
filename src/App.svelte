@@ -3,7 +3,7 @@
     import { features } from "./features";
     import "./scss/app.css";
 
-    let current_mode = features.names()[0];
+    let current_mode = features.names()[1];
     function update_mode(mode: string) {
         current_mode = mode;
     }

@@ -1,8 +1,9 @@
 @use "./theme";
 
 body {
-    background-color: theme.$black;
-    color: theme.$white;
+    background-color: theme.$black-1;
+    color: theme.$white-1;
+    overflow: hidden;
 }
 
 p {

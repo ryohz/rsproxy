@@ -1,0 +1,10 @@
+@use "../../../scss/theme";
+
+.editor {
+    overflow: scroll;
+    background-color: theme.$black3;
+    
+    .body {
+        overflow: hidden;
+    }
+}

@@ -1,0 +1,43 @@
+.exchange {
+  position: relative;
+  background-color: #0c0a09;
+  border-color: #0c0a09;
+  border-width: 1px;
+  border-style: solid;
+  height: 30px;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  align-items: center;
+}
+.exchange:hover {
+  cursor: pointer;
+  background-color: #1c1917;
+}
+.exchange p {
+  overflow: visible;
+  font-size: 10px;
+  margin-left: 15px;
+}
+
+.request::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 5px;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 5px;
+  background-color: #16a34a;
+}
+
+.response::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 5px;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 5px;
+  background-color: #2563eb;
+}/*# sourceMappingURL=exchangePart.css.map */

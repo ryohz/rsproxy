@@ -1,4 +1,4 @@
 .proxy {
   display: grid;
-  grid-template-rows: 30px calc(100% - 30px);
+  grid-template-rows: 20px calc(100% - 30px);
 }/*# sourceMappingURL=proxy.css.map */

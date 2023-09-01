@@ -1,0 +1,7 @@
+.editor {
+  overflow: scroll;
+  background-color: #292524;
+}
+.editor .body {
+  overflow: hidden;
+}/*# sourceMappingURL=exchangeEditor.css.map */

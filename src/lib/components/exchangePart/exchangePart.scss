@@ -1,0 +1,48 @@
+@use "../../../scss/theme";
+@use "../../../scss/rule";
+
+.exchange {
+    position: relative;
+    background-color: theme.$black1;
+    border-color: theme.$black1;
+    border-width: 1px;
+    border-style: solid;
+    height: rule.$content-size-small-1;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    align-items: center;
+
+    &:hover {
+        cursor: pointer;
+        background-color: theme.$black2;
+    }
+
+    p {
+        overflow: visible;
+        font-size: rule.$font-size-small-1;
+        margin-left: rule.$gap-size-3;
+    }
+}
+
+.request::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: rule.$gap-size-1;
+    transform: translateY(-50%);
+    width: rule.$content-size-bit-2;
+    height: rule.$content-size-bit-2;
+    background-color: theme.$green;
+}
+
+.response::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: rule.$gap-size-1;
+    transform: translateY(-50%);
+    width: rule.$content-size-bit-2;
+    height: rule.$content-size-bit-2;
+    background-color: theme.$blue;
+}

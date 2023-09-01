@@ -1,6 +1,7 @@
 <div />
-<style>
+<style lang='scss'>
+    @use "../../../scss/theme";
     div {
-        background-color: gray;
+        background-color: theme.$black2;
     }
 </style>

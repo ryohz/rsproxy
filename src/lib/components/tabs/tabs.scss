@@ -4,7 +4,7 @@
 .tabs {
     display: flex;
     flex-direction: row;
-    background-color: theme.$black-alt;
+    background-color: theme.$black3;
 
     .tab {
         display: flex;
@@ -16,11 +16,13 @@
         &:hover {
             cursor: pointer;
         }
+
+        .name {
+            font-size: small;
+        }
     }
-    
+
     .selected {
-        background-color: theme.$black;
+        background-color: theme.$black1;
     }
 }
-
-
