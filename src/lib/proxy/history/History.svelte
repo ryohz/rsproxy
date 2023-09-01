@@ -23,7 +23,7 @@
             {
                 component: ExchangeEditor,
                 props: {
-                    current_exchange: current_exchange,
+                    exchange: current_exchange,
                 },
             },
         ]}

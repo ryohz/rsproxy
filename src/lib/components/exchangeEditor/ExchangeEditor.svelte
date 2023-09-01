@@ -1,9 +1,17 @@
 <script lang="ts">
     import "./exchangeEditor.css";
-    import { Exchange, ExchangeType } from "../../types";
+    import {
+        Exchange,
+        ExchangeType,
+        get_http_methods,
+        get_http_methods_string,
+    } from "../../types";
+    import Select from "../select/Select.svelte";
+    import TextInput from "../textInput/TextInput.svelte";
+    import HeadersEditor from "./editor/Editor.svelte";
 
-    export let current_exchange: Exchange = new Exchange({
-        headers: {},
+    export let exchange: Exchange = new Exchange({
+        headers: "",
         body: "",
         url: "",
         method: undefined,
@@ -11,11 +19,35 @@
         type: ExchangeType.Empty,
     });
 
-    console.log(current_exchange);
+    let methods = get_http_methods();
+    let methods_string: string[] = [];
+    for (const method of methods) {
+        methods_string.push(get_http_methods_string(method));
+    }
 </script>
 
 <div class="editor">
-    <p class="body">
-        {current_exchange.body}
-    </p>
+    <div class="header">
+        {#if exchange.type === ExchangeType.Request}
+            <div class="method">
+                <p>method</p>
+                <Select
+                    value={get_http_methods_string(exchange.method)}
+                    items={methods_string}
+                />
+            </div>
+        {:else if exchange.type === ExchangeType.Response}
+            <div class="status">
+                <p>Status</p>
+                <TextInput value={exchange.status?.toString()} />
+            </div>
+        {:else}{/if}
+        <div class="url">
+            <p>url</p>
+            <TextInput value={exchange.url} />
+        </div>
+    </div>
+    <div class="headers">
+        <HeadersEditor body={exchange.body} headers={exchange.headers}/>
+    </div>
 </div>

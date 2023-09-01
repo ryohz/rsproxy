@@ -1,6 +1,10 @@
 <script lang="ts">
     import "./exchangePart.css";
-    import { ExchangeType, type Part } from "../../types";
+    import {
+        ExchangeType,
+        get_http_methods_string,
+        type Part,
+    } from "../../types";
     import { current_history_exchange, history_exchanges } from "../../datas";
     import { get } from "svelte/store";
 
@@ -25,7 +29,7 @@
             handle(part.id);
         }}
     >
-        <p>{part.method}</p>
+        <p>{get_http_methods_string(part.method)}</p>
         <p>{part.url}</p>
     </div>
 {:else if part.type === ExchangeType.Response}

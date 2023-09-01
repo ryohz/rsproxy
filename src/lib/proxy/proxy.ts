@@ -13,7 +13,7 @@ async function start() {
             typeof request.body === "string" &&
             typeof request.url === "string" &&
             typeof request.method === "string") {
-            let headers: object = JSON.parse(request.headers);
+            let headers: string = request.headers;
             let body: string = request.body;
             let url: string = request.url;
             let method: string = request.method;
@@ -38,7 +38,7 @@ async function start() {
             typeof response.body === "string" &&
             typeof response.url === "string" &&
             typeof response.status === "number") {
-            let headers: object = JSON.parse(response.headers);
+            let headers: object = response.headers;
             let body: string = response.body;
             let url: string = response.url;
             let status: number = response.status;

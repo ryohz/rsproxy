@@ -1,0 +1,19 @@
+@use "../../../../scss/rule";
+@use "../../../../scss/theme";
+
+.headers {
+    width: 100%;
+
+    .editor {
+        margin: rule.$gap-size-2;
+        outline: none;
+        // height: fit-content;
+        height: auto;
+        width: calc(100% - rule.$gap-size-2 * 2);
+        appearance: none;
+        border: 1px theme.$gray1 solid;
+        background-color: theme.$black3;
+        color: theme.$white1;
+        resize: vertical;
+    }
+}

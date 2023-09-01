@@ -1,0 +1,9 @@
+.input {
+  height: calc(100% - 5px);
+  background-color: #292524;
+  width: 100%;
+  border: 1px #57534e solid;
+  border-radius: 2px;
+  color: #e7e5e4;
+  outline: none;
+}/*# sourceMappingURL=textInput.css.map */

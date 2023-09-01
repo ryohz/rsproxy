@@ -1,10 +1,41 @@
 @use "../../../scss/theme";
+@use "../../../scss/rule";
 
 .editor {
     overflow: scroll;
-    background-color: theme.$black3;
-    
-    .body {
-        overflow: hidden;
+    background-color: theme.$black2;
+    height: 100%;
+
+    .header {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        height: rule.$content-size-small-1;
+        color: theme.$gray3;
+        margin-left: rule.$gap-size-2;
+        margin-top: rule.$gap-size-1;
+        gap: rule.$gap-size-3;
+
+        .method {
+            display: flex;
+            flex-direction: row;
+            gap: rule.$gap-size-1;
+            align-items: center;
+        }
+
+        .status {
+            display: flex;
+            flex-direction: row;
+            gap: rule.$gap-size-1;
+            align-items: center;
+        }
+
+        .url {
+            display: flex;
+            flex-direction: row;
+            gap: rule.$gap-size-1;
+            width: 50%;
+            align-items: center;
+        }
     }
 }

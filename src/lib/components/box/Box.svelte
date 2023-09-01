@@ -17,7 +17,6 @@
     let bottom_size = `calc(50% - (${border_size} / 2) - ${
         dif.toString() + "px"
     })`;
-    let grid_template_rows = `grid-template-rows: ${top_size} ${border_size} ${bottom_size};`;
 
     function init_orogin(event) {
         state = true;
@@ -37,7 +36,6 @@
             bottom_size = `calc(50% - (${border_size} / 2) - ${
                 dif.toString() + "px"
             })`;
-            grid_template_rows = `grid-template-rows: ${top_size} ${border_size} ${bottom_size};`;
         }
     }
 
@@ -45,27 +43,33 @@
         state = false;
     }
 
-    afterUpdate(() => {
-        console.log(grid_template_rows);
-    });
+    // afterUpdate(() => {
+    // });
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <!-- <div class='entire'> -->
-<div
-    class="box"
-    on:mouseup={stop_resize}
-    on:mousemove={resize}
-    style={grid_template_rows}
->
-    <svelte:component this={components[0].component} {...components[0].props} />
+<div class="box" on:mouseup={stop_resize} on:mousemove={resize}>
+    <div class="top content" style={`height: ${top_size};`}>
+        <svelte:component
+            this={components[0].component}
+            {...components[0].props}
+        />
+    </div>
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div
+        style={`top: ${top_size}; height: ${border_size};`}
         class="border"
         on:mousedown={init_orogin}
         on:mousemove={resize}
         on:mouseup={stop_resize}
     />
-    <svelte:component this={components[1].component} {...components[1].props} />
+
+    <div class="bottom content" style={`height: ${bottom_size};`}>
+        <svelte:component
+            this={components[1].component}
+            {...components[1].props}
+        />
+    </div>
 </div>
 <!-- </div> -->

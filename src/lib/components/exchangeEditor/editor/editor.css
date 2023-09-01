@@ -1,0 +1,16 @@
+.headers {
+  width: 100%;
+}
+.headers .editor {
+  margin: 10px;
+  outline: none;
+  height: auto;
+  width: calc(100% - 20px);
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  border: 1px #57534e solid;
+  background-color: #292524;
+  color: #e7e5e4;
+  resize: vertical;
+}/*# sourceMappingURL=editor.css.map */

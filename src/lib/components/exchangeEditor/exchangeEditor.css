@@ -1,7 +1,34 @@
 .editor {
   overflow: scroll;
-  background-color: #292524;
+  background-color: #1c1917;
+  height: 100%;
 }
-.editor .body {
-  overflow: hidden;
+.editor .header {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 30px;
+  color: #a8a29e;
+  margin-left: 10px;
+  margin-top: 5px;
+  gap: 15px;
+}
+.editor .header .method {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  align-items: center;
+}
+.editor .header .status {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  align-items: center;
+}
+.editor .header .url {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  width: 50%;
+  align-items: center;
 }/*# sourceMappingURL=exchangeEditor.css.map */

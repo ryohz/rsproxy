@@ -9,12 +9,18 @@
   flex-direction: row;
   overflow: hidden;
   align-items: center;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
 }
 .exchange:hover {
   cursor: pointer;
   background-color: #1c1917;
 }
 .exchange p {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
   overflow: visible;
   font-size: 10px;
   margin-left: 15px;

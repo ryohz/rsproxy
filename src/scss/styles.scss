@@ -1,11 +1,23 @@
 @use "./theme";
 
 body {
-    background-color: theme.$black-1;
-    color: theme.$white-1;
+    background-color: theme.$black1;
+    color: theme.$white1;
     overflow: hidden;
 }
 
 p {
     font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+}
+
+input {
+    font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }

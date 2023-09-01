@@ -1,12 +1,27 @@
-body {
-  overflow: hidden;
-}
-
 .box {
-  display: grid;
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+.box .top {
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  overflow: scroll;
+}
+.box .bottom {
+  overflow: scroll;
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
 }
 .box .border {
-  background-color: #292524;
+  width: 100%;
+  position: absolute;
+  border-top-color: #57534e;
+  border-top-width: 1px;
+  border-top-style: solid;
+  background-color: #1c1917;
 }
 .box .border:hover {
   cursor: row-resize;

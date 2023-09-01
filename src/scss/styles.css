@@ -1,8 +1,21 @@
 body {
   background-color: #0c0a09;
   color: #e7e5e4;
+  overflow: hidden;
 }
 
 p {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+}
+
+input {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }/*# sourceMappingURL=styles.css.map */
