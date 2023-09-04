@@ -2,9 +2,8 @@ use std::{
     convert::Infallible,
     io::Read,
     net::SocketAddr,
-    sync::{Arc, Mutex},
 };
-use tokio::sync::mpsc::Sender;
+use tokio::sync::{mpsc, broadcast};
 
 use hyper::Server;
 use thiserror::Error;
@@ -14,14 +13,14 @@ use crate::types::{
 };
 
 pub async fn run_proxy_server(
-    request_tx: Sender<Request>,
-    response_tx: Sender<Response>, // pilot_state: Arc<Mutex<bool>>,
+    request_tx: mpsc::Sender<Request>,
+    response_tx: mpsc::Sender<Response>,
+    pilot_state_rx: mpsc::Receiver<bool>,
 ) {
     let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
     let make_service = hyper::service::make_service_fn(move |_conn| {
         let request_tx = request_tx.clone();
         let response_tx = response_tx.clone();
-        // let pilot_state = pilot_state.clone();
         async move {
             Ok::<_, Infallible>(hyper::service::service_fn(
                 move |request: hyper::Request<hyper::Body>| {
@@ -29,7 +28,7 @@ pub async fn run_proxy_server(
                     let request_tx = request_tx.clone();
                     let response_tx = response_tx.clone();
                     async move {
-                        Ok::<_, Infallible>(match handle(request, request_tx, response_tx).await {
+                        Ok::<_, Infallible>(match handle(request, request_tx, response_tx,pilot_state_rx).await {
                             Ok(response) => response,
                             Err(error_response) => error_response,
                         })
@@ -79,9 +78,9 @@ enum ProxyError {
 // ** ####################################################################################################
 async fn handle(
     request: hyper::Request<hyper::Body>,
-    request_tx: Sender<Request>,
-    response_tx: Sender<Response>,
-    // pilot_state: Arc<Mutex<bool>>,
+    request_tx: mpsc::Sender<Request>,
+    response_tx: mpsc::Sender<Response>,
+    pilot_state_rx:  broadcast::Receiver<bool>,
 ) -> Result<hyper::Response<hyper::Body>, hyper::Response<hyper::Body>> {
     // ** convert hyper request to reqwest request
     let reqw_request = hyper2reqwest(request).await;
@@ -283,7 +282,7 @@ impl VolatileExchange {
         }
     }
 
-    async fn set_current_request(&self, request_tx: Sender<Request>) {
+    async fn set_current_request(&self, request_tx: mpsc::Sender<Request>) {
         let (headers, body, url, method) = self.get_request().unwrap();
         let request = Request {
             headers,
@@ -294,7 +293,7 @@ impl VolatileExchange {
         request_tx.send(request).await.unwrap();
     }
 
-    async fn set_current_response(&self, response_tx: Sender<Response>) {
+    async fn set_current_response(&self, response_tx: mpsc::Sender<Response>) {
         let (headers, body, url, status) = self.get_response().unwrap();
         let response = Response {
             headers,

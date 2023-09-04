@@ -1,7 +1,6 @@
 <script lang="ts">
     import "./scss/proxy.css";
     import History from "./history/History.svelte";
-    import type { TabObject } from "../types";
     import { modes } from "./data";
     import Tabs from "../components/tabs/Tabs.svelte";
 

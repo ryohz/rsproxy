@@ -1,0 +1,8 @@
+.controller {
+  height: 30px;
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  margin-left: 5px;
+  margin-top: 5px;
+}/*# sourceMappingURL=controller.css.map */

@@ -10,6 +10,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        gap: rule.$gap-size-1;
         height: 100%;
         width: rule.$content-size-medium-1;
 

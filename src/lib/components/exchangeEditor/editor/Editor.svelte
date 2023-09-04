@@ -20,14 +20,50 @@
         }
     }
 
-    function determine_format() {
+    async function formatBody(text: string) {
         let json = JSON.parse(headers);
         let type = json["content-type"];
-        
-    }
 
-    async function formatBody(text: string) {
-        determine_format();
+        switch (type) {
+            case "text/html":
+                try {
+                    return await prettier.format(text, {
+                        parser: "babel",
+                        plugins: [pluginBabel, pluginEstree, pluginHtml],
+                    });
+                } catch (error) {
+                    console.log(error);
+                }
+            case "text/css":
+                try {
+                    return await prettier.format(text, {
+                        parser: "css",
+                        plugins: [pluginBabel, pluginEstree],
+                    });
+                } catch (error) {
+                    console.log(error);
+                }
+            case "text/javascript":
+                try {
+                    return await prettier.format(text, {
+                        parser: "javascript",
+                        plugins: [pluginBabel, pluginEstree],
+                    });
+                } catch (error) {
+                    console.log(error);
+                }
+            case "application/json":
+                try {
+                    return await prettier.format(text, {
+                        parser: "json",
+                        plugins: [pluginBabel, pluginEstree],
+                    });
+                } catch (error) {
+                    console.log(error);
+                }
+            default:
+                return text;
+        }
     }
 </script>
 
@@ -35,5 +71,7 @@
     {#await formatJSON(headers) then formattedJSON}
         <textarea class="editor" value={formattedJSON} />
     {/await}
-    {#await formatBody(body)}{/await}
+    {#await formatBody(body) then formattedBody}
+        <textarea class="editor" value={formattedBody} />
+    {/await}
 </div>

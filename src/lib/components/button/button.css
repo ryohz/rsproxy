@@ -1,0 +1,18 @@
+.button {
+  height: 100%;
+  width: 100px;
+  background-color: #292524;
+  border: 1px #57534e solid;
+  border-radius: 2px;
+  color: #e7e5e4;
+  text-align: center;
+  font-size: 12px;
+  outline: none;
+}
+.button:hover {
+  border-color: #78716c;
+  cursor: pointer;
+}
+.button:active {
+  transform: scale(0.98);
+}/*# sourceMappingURL=button.css.map */

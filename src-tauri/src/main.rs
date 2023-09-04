@@ -7,7 +7,7 @@ use std::sync::{Arc, Mutex};
 
 use proxy::run_proxy_server;
 use tauri::Manager;
-use tokio::sync::mpsc;
+use tokio::sync::{broadcast, mpsc};
 use types::{Request, Response};
 
 #[tokio::main]
@@ -21,7 +21,7 @@ async fn main() {
     // }));
     let (request_tx, mut request_rx) = mpsc::channel::<Request>(200);
     let (response_tx, mut response_rx) = mpsc::channel::<Response>(200);
-    let (pilot_state_tx, mut pilot_state_rx) = mpsc::channel::<bool>(10);
+    let (pilot_state_tx, mut pilot_state_rx) = broadcast::channel::<bool>(10);
 
     let proxy_request_tx = request_tx.clone();
     let proxy_response_tx = response_tx.clone();
@@ -48,6 +48,10 @@ async fn main() {
                         .emit_all("proxy_response", json)
                         .unwrap();
                 }
+            });
+
+            app.listen_global("front-to-back", |event| {
+                println!("message: {:?}", event.payload().unwrap());
             });
             Ok(())
         })

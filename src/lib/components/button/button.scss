@@ -1,0 +1,23 @@
+@use "../../../scss/rule";
+@use "../../../scss/theme";
+
+.button {
+    height: 100%;
+    width: rule.$content-size-medium-1;
+    background-color: theme.$black3;
+    border: 1px theme.$gray1 solid;
+    border-radius: 2px;
+    color: theme.$white1;
+    text-align: center;
+    font-size: rule.$font-size-small-2;
+    outline: none;
+
+    &:hover {
+        border-color: theme.$gray2;
+        cursor: pointer;
+    }
+    
+    &:active{
+        transform: scale(0.98);         
+    }
+}

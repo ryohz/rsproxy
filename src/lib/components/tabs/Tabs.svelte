@@ -17,6 +17,7 @@
                 class="tab selected"
                 on:click={() => change_mode(tab_object.name)}
             >
+                <Icon icon={tab_object.iconify} />
                 <p class="name">
                     {tab_object.name}
                 </p>
@@ -25,6 +26,7 @@
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-no-static-element-interactions -->
             <div class="tab" on:click={() => change_mode(tab_object.name)}>
+                <Icon icon={tab_object.iconify} />
                 <p class="name">
                     {tab_object.name}
                 </p>

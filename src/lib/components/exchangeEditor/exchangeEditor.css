@@ -31,4 +31,19 @@
   gap: 5px;
   width: 50%;
   align-items: center;
+}
+.editor .main {
+  display: grid;
+  grid-template-columns: 90% 10%;
+}
+.editor .empty {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 15px;
+}
+.editor .empty .empty-message {
+  font-size: large;
 }/*# sourceMappingURL=exchangeEditor.css.map */

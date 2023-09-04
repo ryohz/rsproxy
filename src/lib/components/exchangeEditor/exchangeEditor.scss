@@ -38,4 +38,24 @@
             align-items: center;
         }
     }
+
+    .main {
+        display: grid;
+        grid-template-columns: 90% 10%;
+
+        .side {
+        }
+    }
+
+    .empty {
+        display: flex;
+        flex-direction: row;
+        gap: rule.$gap-size-1;
+        align-items: center;
+        justify-content: center;
+        margin-top: rule.$gap-size-3;
+        .empty-message {
+            font-size: large;
+        }
+    }
 }
