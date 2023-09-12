@@ -5,10 +5,10 @@
 .select .button {
   height: 100%;
   width: 100px;
-  background-color: #292524;
-  border: 1px #57534e solid;
+  background-color: #27272a;
+  border: 1px #3f3f46 solid;
   border-radius: 2px;
-  color: #e7e5e4;
+  color: #e4e4e7;
   text-align: start;
   font-size: 12px;
 }
@@ -18,23 +18,23 @@
 .select .options {
   position: absolute;
   top: 100%;
-  background-color: #292524;
+  background-color: #27272a;
   width: 100px;
-  color: #e7e5e4;
-  border: 1px #57534e solid;
+  color: #e4e4e7;
+  border: 1px #3f3f46 solid;
   border-radius: 2px;
   display: flex;
   flex-direction: column;
   border-top-left-radius: 0px;
   border-top-right-radius: 0px;
-  border-top-color: #292524;
+  border-top-color: #27272a;
   z-index: 9999;
 }
 .select .options:hover {
   cursor: pointer;
   border-top-left-radius: 0px;
   border-top-right-radius: 0px;
-  border-top-color: #292524;
+  border-top-color: #27272a;
   z-index: 9999;
 }
 .select .options .option {
@@ -45,7 +45,7 @@
 }
 .select .options .option:hover {
   cursor: pointer;
-  background-color: #57534e;
+  background-color: #3f3f46;
   border-radius: 2px;
   z-index: 9999;
 }

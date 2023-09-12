@@ -12,6 +12,7 @@
         width: calc(100% - rule.$gap-size-2 * 2);
         appearance: none;
         border: 1px theme.$gray1 solid;
+        border-radius: 2px;
         background-color: theme.$black3;
         color: theme.$white1;
         resize: vertical;

@@ -3,7 +3,7 @@
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
-  background-color: #292524;
+  background-color: #27272a;
 }
 .bar .icons {
   position: relative;
@@ -13,11 +13,11 @@
   align-items: center;
 }
 .bar .icons .icon {
-  color: #e7e5e4;
+  color: #e4e4e7;
   font-size: 25px;
 }
 .bar .icons .icon:hover {
-  color: #d946ef;
+  color: #7c3aed;
   cursor: pointer;
 }
 .bar .icons .other {
@@ -27,7 +27,7 @@
   margin-top: 15px;
 }
 .bar .icons .selected {
-  color: #d946ef;
+  color: #7c3aed;
 }
 .bar .others:first-child {
   margin-top: 30px;

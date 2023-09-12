@@ -4,7 +4,7 @@
     export let after_value: string;
     export let on_click: Function;
 
-    let current_value = value;
+    export let current_value = value;
 
     function oc() {
         if (current_value === value) {

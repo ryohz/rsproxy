@@ -1,26 +1,21 @@
 <script lang="ts">
     import "./exchangePart.css";
-    import {
-        ExchangeType,
-        get_http_methods_string,
-        type Part,
-    } from "../../types";
-    import { current_history_exchange, history_exchanges } from "../../datas";
+    import { proxy, type Part } from "../../proxy/proxy";
     import { get } from "svelte/store";
 
     export let part: Part;
 
     function handle(id: number) {
-        let exchanges = get(history_exchanges);
+        let exchanges = get(proxy.history_exchanges);
         for (let i = 0; i < exchanges.length; i++) {
             if (exchanges[i].id === id) {
-                current_history_exchange.set(exchanges[i]);
+                proxy.current_history_exchange.set(exchanges[i]);
             }
         }
     }
 </script>
 
-{#if part.type === ExchangeType.Request}
+{#if part.type === proxy.ExchangeType.Request}
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div
@@ -29,10 +24,10 @@
             handle(part.id);
         }}
     >
-        <p>{get_http_methods_string(part.method)}</p>
+        <p>{proxy.get_http_methods_string(part.method)}</p>
         <p>{part.url}</p>
     </div>
-{:else if part.type === ExchangeType.Response}
+{:else if part.type === proxy.ExchangeType.Response}
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div

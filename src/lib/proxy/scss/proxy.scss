@@ -1,7 +1,7 @@
 @use "../../../scss/rule";
 @use "../../../scss/theme";
 
-$tab-height: rule.$content-size-small-1;
+$tab-height: rule.$unit-size-small-3;
 
 .proxy {
     display: grid;

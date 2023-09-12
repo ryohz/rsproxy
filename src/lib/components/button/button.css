@@ -1,16 +1,16 @@
 .button {
   height: 100%;
   width: 100px;
-  background-color: #292524;
-  border: 1px #57534e solid;
+  background-color: #27272a;
+  border: 1px #3f3f46 solid;
   border-radius: 2px;
-  color: #e7e5e4;
+  color: #e4e4e7;
   text-align: center;
   font-size: 12px;
   outline: none;
 }
 .button:hover {
-  border-color: #78716c;
+  border-color: #52525b;
   cursor: pointer;
 }
 .button:active {

@@ -6,6 +6,7 @@ pub struct Request {
     pub body: String,
     pub url: String,
     pub method: String,
+    pub piloted: bool,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -14,6 +15,7 @@ pub struct Response {
     pub body: String,
     pub url: String,
     pub status: u16,
+    pub piloted: bool,
 }
 
 pub type HeadersJson = String;

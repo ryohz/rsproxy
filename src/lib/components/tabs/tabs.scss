@@ -19,11 +19,18 @@
         }
 
         .name {
-            font-size: small;
+            font-size: rule.$font-size-small-1;
+            font-weight: bold;
         }
     }
 
     .selected {
-        background-color: theme.$black1;
+        background-color: theme.$black2;
+        border-bottom: 1px theme.$accent solid;
+        border-top-width: 1px;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        border-bottom-left-radius: 2px;
+        border-bottom-right-radius: 2px;
     }
 }

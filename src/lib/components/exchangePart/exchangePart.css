@@ -1,7 +1,7 @@
 .exchange {
   position: relative;
-  background-color: #0c0a09;
-  border-color: #0c0a09;
+  background-color: #09090b;
+  border-color: #09090b;
   border-width: 1px;
   border-style: solid;
   height: 30px;
@@ -15,7 +15,7 @@
 }
 .exchange:hover {
   cursor: pointer;
-  background-color: #1c1917;
+  background-color: #18181b;
 }
 .exchange p {
   -webkit-user-select: none;
@@ -34,7 +34,7 @@
   transform: translateY(-50%);
   width: 5px;
   height: 5px;
-  background-color: #16a34a;
+  background-color: #0d9488;
 }
 
 .response::after {
@@ -45,5 +45,5 @@
   transform: translateY(-50%);
   width: 5px;
   height: 5px;
-  background-color: #2563eb;
+  background-color: #0284c7;
 }/*# sourceMappingURL=exchangePart.css.map */

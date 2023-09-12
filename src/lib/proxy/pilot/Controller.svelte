@@ -2,12 +2,19 @@
     import "./scss/controller.css";
     import Button from "../../components/button/Button.svelte";
     import Switch from "../../components/switch/Switch.svelte";
-    import { emit } from "@tauri-apps/api/event";
+    import { proxy } from "../proxy";
+    import { get } from "svelte/store";
 
-    function change_pilot_state(state: boolean) {
-        if (state) {
-            emit('front-to-back', 'hello');
+    let pilot_state = get(proxy.pilot_state);
+    proxy.pilot_state.subscribe(() => {
+        pilot_state = get(proxy.pilot_state);
+    });
+
+    function change_pilot_state() {
+        if (pilot_state) {
+            proxy.disable_pilot();
         } else {
+            proxy.enable_pilot();
         }
     }
 
@@ -17,7 +24,15 @@
 </script>
 
 <div class="controller">
-    <Switch value="OFF" after_value="ON" on_click={change_pilot_state} />
-    <Button iconify="icon-park-outline:delete" on_click={discard} />
-    <Button iconify="ph:play-fill" on_click={forward} />
+    <div class="inner">
+        <Switch
+            value="OFF"
+            after_value="ON"
+            on_click={change_pilot_state}
+            current_value={pilot_state ? "ON" : "OFF"}
+        />
+        <Button iconify="icon-park-outline:delete" on_click={discard} />
+        <Button iconify="icon-park-outline:delete" on_click={discard} />
+        <Button iconify="ph:play-fill" on_click={forward} />
+    </div>
 </div>

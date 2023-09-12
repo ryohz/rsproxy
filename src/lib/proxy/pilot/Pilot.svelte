@@ -4,7 +4,7 @@
     import "./scss/pilot.css";
 </script>
 
-<div class="scss">
+<div class="pilot">
     <Controller />
     <ExchangeEditor />
 </div>

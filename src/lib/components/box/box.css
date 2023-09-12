@@ -18,10 +18,10 @@
 .box .border {
   width: 100%;
   position: absolute;
-  border-top-color: #57534e;
+  border-top-color: #3f3f46;
   border-top-width: 1px;
   border-top-style: solid;
-  background-color: #1c1917;
+  background-color: #18181b;
 }
 .box .border:hover {
   cursor: row-resize;

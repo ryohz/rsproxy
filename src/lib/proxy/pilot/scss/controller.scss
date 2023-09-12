@@ -3,9 +3,17 @@
 
 .controller {
     height: rule.$content-size-small-1;
-    display: flex;
-    flex-direction: row;
-    gap: rule.$gap-size-1;
-    margin-left: rule.$gap-size-1;
-    margin-top: rule.$gap-size-1;
+    background-color: theme.$black2;
+    width: 100%;
+    position: relative;
+
+    .inner {
+        display: flex;
+        flex-direction: row;
+        position: absolute;
+        top: rule.$gap-size-1;
+        left: rule.$gap-size-1;
+        gap: rule.$gap-size-1;
+        height: calc(100% - rule.$gap-size-1);
+    }
 }

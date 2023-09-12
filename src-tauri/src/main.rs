@@ -13,45 +13,28 @@ use types::{Request, Response};
 #[tokio::main]
 async fn main() {
     // ** shared state for proxy
-    // let current_request = Arc::new(Mutex::new(Request {
-    //     headers: "".to_string(),
-    //     body: "".to_string(),
-    //     url: "".to_string(),
-    //     method: "".to_string(),
-    // }));
-    let (request_tx, mut request_rx) = mpsc::channel::<Request>(200);
-    let (response_tx, mut response_rx) = mpsc::channel::<Response>(200);
-    let (pilot_state_tx, mut pilot_state_rx) = broadcast::channel::<bool>(10);
-
-    let proxy_request_tx = request_tx.clone();
-    let proxy_response_tx = response_tx.clone();
-
-    tokio::spawn(async move {
-        run_proxy_server(proxy_request_tx, proxy_response_tx).await;
-    });
 
     tauri::Builder::default()
         .setup(|app| {
-            let request_app_handle = app.app_handle();
+            // * proxy
+            let pilot_state = Arc::new(Mutex::new(false));
+
+            let pilot_state_alt = pilot_state.clone();
+            let proxy_app_handle = app.app_handle();
             tokio::spawn(async move {
-                while let Some(request) = request_rx.recv().await {
-                    let json = serde_json::to_string(&request).unwrap();
-                    request_app_handle.emit_all("proxy_request", json).unwrap();
-                }
+                run_proxy_server(pilot_state_alt, proxy_app_handle).await;
             });
 
-            let response_app_handle = app.app_handle();
-            tokio::spawn(async move {
-                while let Some(response) = response_rx.recv().await {
-                    let json = serde_json::to_string(&response).unwrap();
-                    response_app_handle
-                        .emit_all("proxy_response", json)
-                        .unwrap();
+            app.listen_global("change_pilot_state", move |event| {
+                let mut pilot_state = pilot_state.lock().unwrap();
+                let pilot_state_str = event.payload().unwrap();
+                if pilot_state_str == "true" {
+                    *pilot_state = true;
+                } else if pilot_state_str == "false" {
+                    *pilot_state = false;
+                } else {
+                    println!("invalid pilot state: {}", pilot_state_str);
                 }
-            });
-
-            app.listen_global("front-to-back", |event| {
-                println!("message: {:?}", event.payload().unwrap());
             });
             Ok(())
         })

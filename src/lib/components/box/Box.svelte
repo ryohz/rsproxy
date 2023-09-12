@@ -1,7 +1,6 @@
 <script lang="ts">
     import "./box.css";
     import type { Component } from "../../types";
-    import { afterUpdate } from "svelte";
 
     export let components: Component[];
 

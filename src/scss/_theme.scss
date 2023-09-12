@@ -1,21 +1,22 @@
 $theme: (
-    black1: #0c0a09,
-    black2: #1c1917,
-    black3: #292524,
+    black1: #09090b,
+    black2: #18181b,
+    black3: #27272a,
 
-    gray1: #57534e,
-    gray2: #78716c,
-    gray3: #a8a29e,
+    gray1: #3f3f46,
+    gray2: #52525b,
+    gray3: #71717a,
 
-    white1: #e7e5e4,
-    white2: #f5f5f4,
-    white3: #fafaf9,
+    white1: #e4e4e7,
+    white2: #f4f4f5,
+    white3: #fafafa,
 
-    red: #dc2626,
-    yellow: #eab308,
-    green: #16a34a,
-    blue: #2563eb,
-    accent: #d946ef
+    accent: #7c3aed,
+    
+    red: #e11d48,
+    green: #0d9488,
+    blue: #0284c7,
+    yellow: #d97706,
 );
 
 $black1: map-get($theme, black1);

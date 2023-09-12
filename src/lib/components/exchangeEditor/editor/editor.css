@@ -9,8 +9,9 @@
   -webkit-appearance: none;
      -moz-appearance: none;
           appearance: none;
-  border: 1px #57534e solid;
-  background-color: #292524;
-  color: #e7e5e4;
+  border: 1px #3f3f46 solid;
+  border-radius: 2px;
+  background-color: #27272a;
+  color: #e4e4e7;
   resize: vertical;
 }/*# sourceMappingURL=editor.css.map */

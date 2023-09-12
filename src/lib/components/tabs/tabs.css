@@ -1,7 +1,7 @@
 .tabs {
   display: flex;
   flex-direction: row;
-  background-color: #292524;
+  background-color: #27272a;
 }
 .tabs .tab {
   display: flex;
@@ -15,8 +15,15 @@
   cursor: pointer;
 }
 .tabs .tab .name {
-  font-size: small;
+  font-size: 10px;
+  font-weight: bold;
 }
 .tabs .selected {
-  background-color: #0c0a09;
+  background-color: #18181b;
+  border-bottom: 1px #7c3aed solid;
+  border-top-width: 1px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
 }/*# sourceMappingURL=tabs.css.map */

@@ -21,6 +21,8 @@
             flex-direction: row;
             gap: rule.$gap-size-1;
             align-items: center;
+            font-size: rule.$font-size-small-2;
+            font-weight: bold;
         }
 
         .status {
@@ -28,6 +30,8 @@
             flex-direction: row;
             gap: rule.$gap-size-1;
             align-items: center;
+            font-size: rule.$font-size-small-2;
+            font-weight: bold;
         }
 
         .url {
@@ -36,6 +40,8 @@
             gap: rule.$gap-size-1;
             width: 50%;
             align-items: center;
+            font-size: rule.$font-size-small-2;
+            font-weight: bold;
         }
     }
 

@@ -1,14 +1,12 @@
 <script lang="ts">
     import { proxy } from "../proxy";
     import { get } from "svelte/store";
-    import { ExchangeType } from "../../types";
     import "./scss/list.css";
     import ExchangePart from "../../components/exchangePart/ExchangePart.svelte";
-    import { history_exchanges } from "../../datas";
 
-    export let exchanges = get(history_exchanges);
-    history_exchanges.subscribe(() => {
-        exchanges = get(history_exchanges);
+    export let exchanges = get(proxy.history_exchanges);
+    proxy.history_exchanges.subscribe(() => {
+        exchanges = get(proxy.history_exchanges);
     });
 </script>
 

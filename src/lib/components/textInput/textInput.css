@@ -1,9 +1,9 @@
 .input {
   height: calc(100% - 5px);
-  background-color: #292524;
+  background-color: #27272a;
   width: 100%;
-  border: 1px #57534e solid;
+  border: 1px #3f3f46 solid;
   border-radius: 2px;
-  color: #e7e5e4;
+  color: #e4e4e7;
   outline: none;
 }/*# sourceMappingURL=textInput.css.map */

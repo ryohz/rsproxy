@@ -1,16 +1,12 @@
 <script lang="ts">
     import "./exchangeEditor.css";
-    import {
-        Exchange,
-        ExchangeType,
-        get_http_methods,
-        get_http_methods_string,
-    } from "../../types";
+    import { proxy, Exchange, ExchangeType } from "../../proxy/proxy";
     import Select from "../select/Select.svelte";
     import TextInput from "../textInput/TextInput.svelte";
     import HeadersEditor from "./editor/Editor.svelte";
     import Button from "../switch/Switch.svelte";
     import Icon from "@iconify/svelte";
+    import Editor from "./editor/Editor.svelte";
 
     export let exchange: Exchange = new Exchange({
         headers: "",
@@ -21,10 +17,10 @@
         type: ExchangeType.Empty,
     });
 
-    let methods = get_http_methods();
+    let methods = proxy.get_http_methods();
     let methods_string: string[] = [];
     for (const method of methods) {
-        methods_string.push(get_http_methods_string(method));
+        methods_string.push(proxy.get_http_methods_string(method));
     }
 </script>
 
@@ -33,14 +29,14 @@
         <div class="header">
             {#if exchange.type === ExchangeType.Request}
                 <div class="method">
-                    <p>method</p>
+                    <p>Method</p>
                     <Select
-                        value={get_http_methods_string(exchange.method)}
+                        value={proxy.get_http_methods_string(exchange.method)}
                         items={methods_string}
                     />
                 </div>
                 <div class="url">
-                    <p>url</p>
+                    <p>Url</p>
                     <TextInput value={exchange.url} />
                 </div>
             {:else if exchange.type === ExchangeType.Response}
@@ -49,20 +45,20 @@
                     <TextInput value={exchange.status?.toString()} />
                 </div>
                 <div class="url">
-                    <p>url</p>
+                    <p>Url</p>
                     <TextInput value={exchange.url} />
                 </div>
             {/if}
         </div>
         <div class="main">
-            <HeadersEditor body={exchange.body} headers={exchange.headers} />
+            <Editor body={exchange.body} headers={exchange.headers} />
             <div class="side" />
         </div>
     </div>
 {:else}
     <div class="editor">
-        <div class='empty'>
-            <Icon icon="fa-regular:sad-cry" class='icon'/>
+        <div class="empty">
+            <Icon icon="fa-regular:sad-cry" class="icon" />
             <p class="empty-message">
                 It haven't recieved any requests or responses yet
             </p>

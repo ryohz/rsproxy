@@ -2,8 +2,10 @@ use std::{
     convert::Infallible,
     io::Read,
     net::SocketAddr,
+    sync::{Arc, Mutex},
 };
-use tokio::sync::{mpsc, broadcast};
+use tauri::{AppHandle, Manager};
+use tokio::sync::{broadcast, mpsc};
 
 use hyper::Server;
 use thiserror::Error;
@@ -12,23 +14,18 @@ use crate::types::{
     BodyString, HeadersJson, MethodString, Request, Response, StatusNumber, UrlString,
 };
 
-pub async fn run_proxy_server(
-    request_tx: mpsc::Sender<Request>,
-    response_tx: mpsc::Sender<Response>,
-    pilot_state_rx: mpsc::Receiver<bool>,
-) {
+pub async fn run_proxy_server(pilot_state: Arc<Mutex<bool>>, app_handle: AppHandle) {
     let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
     let make_service = hyper::service::make_service_fn(move |_conn| {
-        let request_tx = request_tx.clone();
-        let response_tx = response_tx.clone();
+        let app_handle = app_handle.clone();
+        let pilot_state = pilot_state.clone();
         async move {
             Ok::<_, Infallible>(hyper::service::service_fn(
                 move |request: hyper::Request<hyper::Body>| {
-                    // let pilot_state = pilot_state.clone();
-                    let request_tx = request_tx.clone();
-                    let response_tx = response_tx.clone();
+                    let app_handle = app_handle.clone();
+                    let pilot_state = pilot_state.clone();
                     async move {
-                        Ok::<_, Infallible>(match handle(request, request_tx, response_tx,pilot_state_rx).await {
+                        Ok::<_, Infallible>(match handle(request, pilot_state, app_handle).await {
                             Ok(response) => response,
                             Err(error_response) => error_response,
                         })
@@ -78,32 +75,58 @@ enum ProxyError {
 // ** ####################################################################################################
 async fn handle(
     request: hyper::Request<hyper::Body>,
-    request_tx: mpsc::Sender<Request>,
-    response_tx: mpsc::Sender<Response>,
-    pilot_state_rx:  broadcast::Receiver<bool>,
+    shared_pilot_state: Arc<Mutex<bool>>,
+    app_handle: AppHandle,
 ) -> Result<hyper::Response<hyper::Body>, hyper::Response<hyper::Body>> {
-    // ** convert hyper request to reqwest request
+    // * convert hyper request to reqwest request and make exchange from them.
+    // convert hyper request to reqwest request
     let reqw_request = hyper2reqwest(request).await;
     if let Err(error) = reqw_request {
         return Err(generate_error_response(error));
     }
     let reqw_request = reqw_request.unwrap();
+    // make exchange from reqwest request
+    let mut exchange = VolatileExchange::new(reqw_request, shared_pilot_state, app_handle);
 
-    let mut exchange = VolatileExchange::new(reqw_request);
+    // *
+    // * REQUEST
+    // *
 
-    // ** get request headers and body, and set them to exchange's property
+    // * get info of request, set them to property, and send them to frontend.
+    // get info of request and set them to property.
     let result = exchange.fetch_request().await;
     if let Err(error) = result {
         return Err(generate_error_response(error));
     }
-    exchange.set_current_request(request_tx).await;
+    // send info of request to frontend.
+    // ** check pilot_state and set it to exchange property
+    exchange.check_pilot_state().await;
+    let request_for_front = exchange.get_request_for_front();
+    exchange
+        .app_handle
+        .emit_all("proxy_request", &request_for_front)
+        .unwrap();
 
-    // ** communicate with remote host, get response from it, and set headers and body to exchange's property
+    if exchange.pilot_state {
+        exchange.wait_for_request_modified().await;
+    }
+
+    // *
+    // * RESPONSE
+    // *
+
+    // * communicate with remote host, get response from it, set info of response to the property, and send them to the frontend.
+    // communicate with remote host, and set response from it to property
     let result = exchange.fetch_response().await;
     if let Err(error) = result {
         return Err(generate_error_response(error));
     }
-    exchange.set_current_response(response_tx).await;
+    // send response to the frontend.
+    let response_for_front = exchange.get_response_for_front();
+    exchange
+        .app_handle
+        .emit_all("proxy_response", &response_for_front)
+        .unwrap();
 
     if let Some(reqw_response) = exchange.response {
         let response = reqwest2hyper(reqw_response).await;
@@ -130,10 +153,17 @@ struct VolatileExchange {
     response_url: Option<String>,
     request_method: Option<String>,
     response_status: Option<u16>,
+    pilot_state: bool,
+    shared_pilot_state: Arc<Mutex<bool>>,
+    app_handle: AppHandle,
 }
 
 impl VolatileExchange {
-    fn new(request: reqwest::Request) -> Self {
+    fn new(
+        request: reqwest::Request,
+        shared_pilot_state: Arc<Mutex<bool>>,
+        app_handle: AppHandle,
+    ) -> Self {
         VolatileExchange {
             request,
             response: None,
@@ -145,6 +175,9 @@ impl VolatileExchange {
             response_url: None,
             request_method: None,
             response_status: None,
+            pilot_state: false,
+            shared_pilot_state,
+            app_handle,
         }
     }
 
@@ -282,26 +315,55 @@ impl VolatileExchange {
         }
     }
 
-    async fn set_current_request(&self, request_tx: mpsc::Sender<Request>) {
+    fn get_request_for_front(&self) -> String {
         let (headers, body, url, method) = self.get_request().unwrap();
         let request = Request {
             headers,
             body,
             url,
             method,
+            piloted: self.pilot_state,
         };
-        request_tx.send(request).await.unwrap();
+        serde_json::to_string(&request).unwrap()
     }
 
-    async fn set_current_response(&self, response_tx: mpsc::Sender<Response>) {
+    fn get_response_for_front(&self) -> String {
         let (headers, body, url, status) = self.get_response().unwrap();
         let response = Response {
             headers,
             body,
             url,
             status,
+            piloted: self.pilot_state,
         };
-        response_tx.send(response).await.unwrap();
+        serde_json::to_string(&response).unwrap()
+    }
+
+    async fn check_pilot_state(&mut self) {
+        self.pilot_state = *self.shared_pilot_state.lock().unwrap();
+    }
+
+    async fn wait_for_request_modified(&mut self) {
+        let app_handle = self.app_handle.clone();
+        let (modified_request_sender, mut modified_request_receiver) =
+            mpsc::channel::<Request>(200);
+
+        app_handle.listen_global("send-modified-request", move |event| {
+            let modified_request_sender = modified_request_sender.clone();
+            tokio::spawn(async move {
+                let modified_request_str = event.payload().unwrap();
+                println!("{}", modified_request_str);
+                let modified_request: Request = serde_json::from_str(modified_request_str).unwrap();
+                modified_request_sender
+                    .send(modified_request)
+                    .await
+                    .unwrap();
+            });
+        });
+
+        if let Some(modified_request) = modified_request_receiver.recv().await {
+            println!("hello!");
+        }
     }
 }
 

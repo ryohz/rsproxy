@@ -31,36 +31,28 @@
                         parser: "babel",
                         plugins: [pluginBabel, pluginEstree, pluginHtml],
                     });
-                } catch (error) {
-                    console.log(error);
-                }
+                } catch (error) {}
             case "text/css":
                 try {
                     return await prettier.format(text, {
                         parser: "css",
                         plugins: [pluginBabel, pluginEstree],
                     });
-                } catch (error) {
-                    console.log(error);
-                }
+                } catch (error) {}
             case "text/javascript":
                 try {
                     return await prettier.format(text, {
                         parser: "javascript",
                         plugins: [pluginBabel, pluginEstree],
                     });
-                } catch (error) {
-                    console.log(error);
-                }
+                } catch (error) {}
             case "application/json":
                 try {
                     return await prettier.format(text, {
                         parser: "json",
                         plugins: [pluginBabel, pluginEstree],
                     });
-                } catch (error) {
-                    console.log(error);
-                }
+                } catch (error) {}
             default:
                 return text;
         }
