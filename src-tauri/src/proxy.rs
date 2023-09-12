@@ -142,6 +142,41 @@ async fn handle(
     }
 }
 
+// struct Exchange {
+//     request: Request,
+//     response: Option<Response>,
+//     reqwest_request: reqwest::Request,
+//     reqwest_response: Option<reqwest::Response>,
+// }
+
+// impl Exchange {
+//     async fn new(request: hyper::Request<hyper::Body>) {
+//         let reqwest_request = hyper2reqwest(request).await.unwrap();
+//         let mut headers_hashmap = std::collections::HashMap::<String, String>::new();
+//         for (name, value) in reqwest_request.headers() {
+//             let name = name.to_string();
+//             let value = value.to_str().unwrap().to_string();
+//             headers_hashmap.insert(name, value);
+//         }
+//         let headers_json = serde_json::to_string(&headers_hashmap).unwrap();
+
+//         let url = reqwest_request.url().to_string();
+//         let method = reqwest_request.method().to_string();
+//         let version = reqwest_request.version();
+//         let request = Request {
+//             headers: headers_json,
+//             url,
+//             method,
+
+//         };
+//         Exchange {
+//             response: None,
+//             reqwest_request,
+//             reqwest_response: None,
+//         }
+//     }
+// }
+
 struct VolatileExchange {
     request: reqwest::Request,
     response: Option<reqwest::Response>,
@@ -223,6 +258,7 @@ impl VolatileExchange {
 
         // ** headers
         let headers = response.headers();
+        println!("{:?}",headers);
         let mut headers_hashmap = std::collections::HashMap::<String, String>::new();
         for (name, value) in headers {
             let name = name.to_string();
@@ -378,16 +414,12 @@ async fn reqwest2hyper(
     reqw_response: reqwest::Response,
 ) -> Result<hyper::Response<hyper::Body>, ProxyError> {
     let reqw_headers = reqw_response.headers().to_owned();
+    println!("{:?}", reqw_response.headers());
     let reqw_body = reqw_response.bytes().await?;
 
     let hyper_body = hyper::Body::from(reqw_body);
 
     let mut hyper_response = hyper::Response::builder();
-    for (name, value) in reqw_headers {
-        if let Some(name) = name {
-            hyper_response = hyper_response.header(name, value);
-        }
-    }
     let hyper_response = hyper_response.body(hyper_body)?;
 
     Ok(hyper_response)

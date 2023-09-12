@@ -3,10 +3,17 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize)]
 pub struct Request {
     pub headers: String,
-    pub body: String,
     pub url: String,
     pub method: String,
+    // pub version: String,
+    pub body: String,
     pub piloted: bool,
+}
+
+impl Request {
+    pub async fn new(original_request: hyper::Request<hyper::Body>) {
+        
+    }
 }
 
 #[derive(Serialize, Deserialize)]
