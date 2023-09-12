@@ -5,6 +5,7 @@ mod exchange;
 mod http_parser;
 mod proxy;
 mod types;
+mod common;
 use std::sync::{Arc, Mutex};
 
 use proxy::run_proxy_server;
