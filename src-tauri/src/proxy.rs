@@ -5,7 +5,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 use tauri::{AppHandle, Manager};
-use tokio::sync::{broadcast, mpsc};
+use tokio::sync::mpsc;
 
 use hyper::Server;
 use thiserror::Error;

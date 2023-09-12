@@ -32,7 +32,6 @@
             current_value={pilot_state ? "ON" : "OFF"}
         />
         <Button iconify="icon-park-outline:delete" on_click={discard} />
-        <Button iconify="icon-park-outline:delete" on_click={discard} />
         <Button iconify="ph:play-fill" on_click={forward} />
     </div>
 </div>

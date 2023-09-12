@@ -5,65 +5,61 @@ import { writable, type Writable } from "svelte/store";
 let request_unlisten;
 let response_unlisten;
 
+// * mangement of proxied exchanges
+// all_exchanges stores all exchanges, proxied exchanges, user-generated exchanges for instance, indexing them with unique id. 
 const all_exchanges: Writable<Exchange[]> = writable([]);
+// history_exchanges stores all proxied exchanges.
 const history_exchanges: Writable<Exchange[]> = writable([]);
+// number of all exchanges that is qeual to latest exchange's id
 const all_exchanges_count = writable(0);
+// current exchange that is being edited.
 const current_history_exchange: Writable<Exchange> = writable();
 
-enum HttpMethod {
-    GET,
-    POST,
-    DELETE,
-    HEAD,
-    OPTIONS,
-    PATCH,
-    TRACE
+// * management of pilot state 
+let pilot_state = writable(false);
+
+async function enable_pilot() {
+    pilot_state.set(true);
+    await send_pilot_state();
 }
 
-function parse_http_method(_method: string): HttpMethod | undefined {
-    let method = _method.toUpperCase();
-    switch (method) {
-        case "GET":
-            return HttpMethod.GET;
-        case "POST":
-            return HttpMethod.POST;
-        case "DELETE":
-            return HttpMethod.DELETE;
-        case "HEAD":
-            return HttpMethod.HEAD;
-        case "OPTIONS":
-            return HttpMethod.OPTIONS;
-        case "PATCH":
-            return HttpMethod.PATCH;
-        case "TRACE":
-            return HttpMethod.TRACE;
-        default:
-            return undefined;
-    }
+async function disable_pilot() {
+    pilot_state.set(false);
+    await send_pilot_state();
 }
 
+async function send_pilot_state() {
+    emit("change_pilot_state", get(pilot_state));
+}
 
+let pilot_exchange: Writable<Exchange> = writable();
+
+// * function that starts listening to proxied exchanges
 async function start() {
     request_unlisten = await listen("proxy_request", (event) => {
         let request = JSON.parse(event.payload);
-        if (typeof request.headers === "string" && typeof request.body === "string" && typeof request.url === "string" && typeof request.method === "string") {
-            console.log(request.piloted);
+        if (typeof request.headers === "string" && typeof request.body === "string" && typeof request.url === "string" && typeof request.method === "string" && typeof request.piloted === "boolean") {
             let headers: string = request.headers;
             let body: string = request.body;
             let url: string = request.url;
             let method: string = request.method;
+            let piloted: boolean = request.piloted;
 
             let new_exchanges = get(history_exchanges);
-
-            new_exchanges.push(new Exchange({
+            let new_exchange = new Exchange({
                 headers: headers,
                 body: body,
                 url: url,
                 method: method,
                 status: undefined,
                 type: ExchangeType.Request
-            }));
+            });
+            new_exchanges.push(new_exchange);
             history_exchanges.set(new_exchanges);
+
+            if (piloted) {
+                pilot_exchange.set(new_exchange);
+            }
         }
     });
 
@@ -91,30 +87,12 @@ async function start() {
     });
 }
 
-let pilot_state = writable(false);
-
-async function enable_pilot() {
-    pilot_state.set(true);
-    await send_pilot_state();
-}
-
-async function disable_pilot() {
-    pilot_state.set(false);
-    await send_pilot_state();
-}
-
-async function send_pilot_state() {
-    emit("change_pilot_state", get(pilot_state));
-}
-
-
 
 export enum ExchangeType {
     Request,
     Response,
     Empty
 }
-
 
 export class Exchange {
     id: number;
@@ -126,11 +104,10 @@ export class Exchange {
     method: HttpMethod | undefined;
 
     constructor(args: { headers: string, body: string, url: string, method: string | undefined, status: number | undefined, type: ExchangeType }) {
-        proxy.all_exchanges_count.update((n) => n + 1);
         if (args.method !== undefined) {
             let method: HttpMethod | undefined = parse_http_method(args.method);
 
-            this.id = get(proxy.all_exchanges_count);
+            this.id = get(all_exchanges_count) + 1;
             this.type = args.type;
             this.headers = args.headers;
             this.body = args.body;
@@ -138,7 +115,7 @@ export class Exchange {
             this.method = method;
             this.status = args.status;
         } else {
-            this.id = get(proxy.all_exchanges_count);
+            this.id = get(all_exchanges_count) + 1;
             this.type = args.type;
             this.headers = args.headers;
             this.body = args.body;
@@ -146,6 +123,7 @@ export class Exchange {
             this.method = args.method;
             this.status = args.status;
         }
+        all_exchanges_count.update((n) => n + 1);
     }
 
     part(): Part {
@@ -182,7 +160,6 @@ function get_http_methods_string(method: HttpMethod | undefined): string {
     }
 }
 
-// wtf is following code?
 function get_http_methods(): HttpMethod[] {
     return [HttpMethod.GET, HttpMethod.POST, HttpMethod.DELETE, HttpMethod.HEAD, HttpMethod.OPTIONS, HttpMethod.PATCH, HttpMethod.TRACE]
 }
@@ -196,7 +173,15 @@ export interface Part {
     method: HttpMethod | undefined
 }
 
-
+enum HttpMethod {
+    GET,
+    POST,
+    DELETE,
+    HEAD,
+    OPTIONS,
+    PATCH,
+    TRACE
+}
 
 export const proxy = {
     start: start,
@@ -211,5 +196,28 @@ export const proxy = {
     HttpMethod: HttpMethod,
     ExchangeType: ExchangeType,
     get_http_methods_string: get_http_methods_string,
-    get_http_methods: get_http_methods
+    get_http_methods: get_http_methods,
+    pilot_exchange: pilot_exchange
 };
+
+function parse_http_method(_method: string): HttpMethod | undefined {
+    let method = _method.toUpperCase();
+    switch (method) {
+        case "GET":
+            return HttpMethod.GET;
+        case "POST":
+            return HttpMethod.POST;
+        case "DELETE":
+            return HttpMethod.DELETE;
+        case "HEAD":
+            return HttpMethod.HEAD;
+        case "OPTIONS":
+            return HttpMethod.OPTIONS;
+        case "PATCH":
+            return HttpMethod.PATCH;
+        case "TRACE":
+            return HttpMethod.TRACE;
+        default:
+            return undefined;
+    }
+}
