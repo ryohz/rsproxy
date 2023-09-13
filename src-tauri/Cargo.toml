@@ -14,8 +14,6 @@ tauri-build = { version = "1.4", features = [] }
 
 [dependencies]
 tauri = { version = "1.4", features = ["shell-open"] }
-# serde = { version = "1.0" }
-# serde_json = { version = "1.0.105" }
 tokio = { version = "1", features = ["full"] }
 hyper = { version = "0.14.27", features = ["full"] }
 thiserror = { version = "1.0.47" }
@@ -25,6 +23,8 @@ serde = "1.0.188"
 serde_json = "1.0.106"
 async-trait = "0.1.73"
 bytes = "1.5.0"
+futures = "0.3.28"
+http = "0.2.9"
 
 
 [features]

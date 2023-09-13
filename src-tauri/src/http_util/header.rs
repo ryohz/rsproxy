@@ -3,12 +3,8 @@ use hyper::{
     header::{HeaderName, HeaderValue},
     HeaderMap,
 };
-use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
-use std::{
-    hash::{Hash, Hasher},
-    str::FromStr,
-};
+use std::str::FromStr;
 
 #[async_trait]
 pub trait Json {
@@ -35,8 +31,10 @@ impl Json for HeaderMap {
         let mut header_json_map = Map::<String, Value>::new();
         for (name, value) in self {
             let name = name.to_string();
-            let value = Value::from_str(value.to_str().unwrap()).unwrap();
-            header_json_map.insert(name, value).unwrap();
+            // let value = Value::from_str(value.to_str().unwrap()).expect("HERE!");
+            let value = value.to_str().unwrap().to_string();
+            let value = Value::from(value);
+            let _ = header_json_map.insert(name, value);
         }
         serde_json::to_string(&header_json_map).unwrap()
     }

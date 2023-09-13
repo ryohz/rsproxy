@@ -1,24 +1,17 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod exchange;
-mod http_parser;
+mod common;
+mod http_util;
 mod proxy;
 mod types;
-mod common;
 use std::sync::{Arc, Mutex};
 
 use proxy::run_proxy_server;
 use tauri::Manager;
-use tokio::sync::{broadcast, mpsc};
-use types::{Request, Response};
 
 #[tokio::main]
 async fn main() {
-    // let headers = http_parser::headers::Headers::from_json(
-    //     "{\"accept\":\"hello\",\"content-type\":\"text/html\"}",
-    // );
-
     // ** shared state for proxy
     tauri::Builder::default()
         .setup(|app| {

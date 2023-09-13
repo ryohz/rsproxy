@@ -36,7 +36,7 @@ let pilot_exchange: Writable<Exchange> = writable();
 
 // * function that starts listening to proxied exchanges
 async function start() {
-    request_unlisten = await listen("proxy_request", (event) => {
+    request_unlisten = await listen("proxy-request", (event) => {
         let request = JSON.parse(event.payload);
         if (typeof request.headers === "string" && typeof request.body === "string" && typeof request.url === "string" && typeof request.method === "string" && typeof request.piloted === "boolean") {
             let headers: string = request.headers;
