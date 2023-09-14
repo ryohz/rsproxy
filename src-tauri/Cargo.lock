@@ -3635,6 +3635,7 @@ version = "0.0.0"
 dependencies = [
  "async-trait",
  "bytes",
+ "flate2",
  "futures",
  "http",
  "hyper",

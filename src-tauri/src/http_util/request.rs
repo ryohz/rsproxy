@@ -1,11 +1,13 @@
-use crate::http_util::header::Json;
+use crate::http_util::traits::FromStr;
+use crate::http_util::traits::Json;
+use crate::http_util::traits::ToString;
 use hyper::{HeaderMap, Method, Uri, Version};
 use serde::{Deserialize, Serialize};
-use std::str::{self, FromStr};
+use std::str::{self};
 use tauri::{AppHandle, Manager};
 use tokio::sync::mpsc;
 
-use super::body::clone_body;
+use super::body::copy_body;
 
 #[derive(Serialize, Deserialize)]
 pub struct Request {
@@ -35,17 +37,7 @@ impl Request {
         let headers = parts.headers.to_json().await;
         let url = parts.uri.to_string();
         let method = parts.method.to_string();
-        let version = match parts.version {
-            hyper::Version::HTTP_09 => "HTTP/0.9",
-            hyper::Version::HTTP_10 => "HTTP/1.0",
-            hyper::Version::HTTP_11 => "HTTP/1.1",
-            hyper::Version::HTTP_2 => "HTTP/2.0",
-            hyper::Version::HTTP_3 => "HTTP/3.0",
-            _ => {
-                panic!("Invalid HTTP Version");
-            }
-        }
-        .to_string();
+        let version = parts.version.to_string();
 
         let body_bytes = hyper::body::to_bytes(body).await.unwrap();
         let body_vec = Vec::<u8>::from(body_bytes);
@@ -65,18 +57,9 @@ impl Request {
 
     pub async fn to_hyper(self) -> hyper::Request<hyper::Body> {
         let headers = HeaderMap::from_json(self.headers).await;
-        let uri = Uri::from_str(self.url.as_str()).unwrap();
-        let method = Method::from_str(self.method.as_str()).unwrap();
-        let version = match self.version.as_str() {
-            "HTTP/0.9" => Version::HTTP_09,
-            "HTTP/1.0" => Version::HTTP_10,
-            "HTTP/1.1" => Version::HTTP_11,
-            "HTTP/2.0" => Version::HTTP_2,
-            "HTTP/3.0" => Version::HTTP_3,
-            _ => {
-                panic!("Invalid HTTP Version");
-            }
-        };
+        let uri = self.url.parse::<Uri>().unwrap();
+        let method = hyper::Method::from_bytes(self.method.as_bytes()).unwrap();
+        let version = hyper::Version::from_str(self.version.as_str());
         let body = hyper::Body::from(self.body);
 
         let mut request = hyper::Request::builder();
@@ -126,7 +109,7 @@ pub async fn copy_request(
     let m = po.method;
     let v = po.version;
 
-    let (b1, b2) = clone_body(b).await;
+    let (b1, b2) = copy_body(b).await;
 
     let r1 = {
         let mut r = hyper::Request::builder().uri(&u).method(&m).version(v);

@@ -25,6 +25,7 @@ async-trait = "0.1.73"
 bytes = "1.5.0"
 futures = "0.3.28"
 http = "0.2.9"
+flate2 = "1.0.27"
 
 
 [features]
