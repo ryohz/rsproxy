@@ -38,52 +38,52 @@ let pilot_exchange: Writable<Exchange> = writable();
 async function start() {
     request_unlisten = await listen("proxy-request", (event) => {
         let request = JSON.parse(event.payload);
-        if (typeof request.headers === "string" && typeof request.body === "string" && typeof request.url === "string" && typeof request.method === "string" && typeof request.piloted === "boolean") {
-            let headers: string = request.headers;
-            let body: string = request.body;
-            let url: string = request.url;
-            let method: string = request.method;
-            let piloted: boolean = request.piloted;
+        let headers: string = request.headers;
+        let body: string = request.body;
+        let url: string = request.url;
+        let method: string = request.method;
+        let piloted: boolean = request.piloted;
+        let version: string = request.version;
 
-            let new_exchanges = get(history_exchanges);
-            let new_exchange = new Exchange({
-                headers: headers,
-                body: body,
-                url: url,
-                method: method,
-                status: undefined,
-                type: ExchangeType.Request
-            });
-            new_exchanges.push(new_exchange);
-            history_exchanges.set(new_exchanges);
+        let new_exchanges = get(history_exchanges);
+        let new_exchange = new Exchange({
+            headers: headers,
+            body: body,
+            url: url,
+            method: method,
+            status: undefined,
+            type: ExchangeType.Request,
+            version: version
+        });
+        new_exchanges.push(new_exchange);
+        history_exchanges.set(new_exchanges);
 
-            if (piloted) {
-                pilot_exchange.set(new_exchange);
-            }
+        if (piloted) {
+            pilot_exchange.set(new_exchange);
         }
     });
 
-    response_unlisten = await listen("proxy_response", (event) => {
+    response_unlisten = await listen("proxy-response", (event) => {
         let response = JSON.parse(event.payload);
-        if (typeof response.headers === "string" && typeof response.body === "string" && typeof response.url === "string" && typeof response.status === "number") {
-            let headers: object = response.headers;
-            let body: string = response.body;
-            let url: string = response.url;
-            let status: number = response.status;
+        console.log(response);
+        let headers: string = response.headers;
+        let body: string = response.body;
+        let status: number = response.status;
+        let version: string = response.version;
 
-            let new_exchanges = get(history_exchanges);
+        let new_exchanges = get(history_exchanges);
 
-            new_exchanges.push(new Exchange({
-                headers: headers,
-                body: body,
-                url: url,
-                method: undefined,
-                status: status,
-                type: ExchangeType.Response
-            }));
+        new_exchanges.push(new Exchange({
+            headers: headers,
+            body: body,
+            method: undefined,
+            url: undefined,
+            status: status,
+            type: ExchangeType.Response,
+            version: version,
+        }));
 
-            history_exchanges.set(new_exchanges);
-        }
+        history_exchanges.set(new_exchanges);
     });
 }
 
@@ -99,11 +99,12 @@ export class Exchange {
     type: ExchangeType;
     headers: string;
     body: string;
-    url: string;
+    url: string | undefined;
     status: number | undefined;
     method: HttpMethod | undefined;
+    version: string;
 
-    constructor(args: { headers: string, body: string, url: string, method: string | undefined, status: number | undefined, type: ExchangeType }) {
+    constructor(args: { headers: string, body: string, url: string | undefined, version: string, method: string | undefined, status: number | undefined, type: ExchangeType }) {
         if (args.method !== undefined) {
             let method: HttpMethod | undefined = parse_http_method(args.method);
 
@@ -114,6 +115,7 @@ export class Exchange {
             this.url = args.url;
             this.method = method;
             this.status = args.status;
+            this.version = args.version;
         } else {
             this.id = get(all_exchanges_count) + 1;
             this.type = args.type;
@@ -122,6 +124,7 @@ export class Exchange {
             this.url = args.url;
             this.method = args.method;
             this.status = args.status;
+            this.version = args.version;
         }
         all_exchanges_count.update((n) => n + 1);
     }
