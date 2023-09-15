@@ -1,9 +1,13 @@
-use async_trait::async_trait;
-use bytes::Bytes;
+use crate::http_util::error::HttpUtilError;
 
-pub async fn copy_body(body: hyper::Body) -> (hyper::Body, hyper::Body) {
-    let ob = hyper::body::to_bytes(body).await.unwrap().clone();
-    let cb1 = ob.clone();
-    let cb2 = ob.clone();
-    (hyper::Body::from(cb1), hyper::Body::from(cb2))
+pub async fn copy_body(body: hyper::Body) -> Result<(hyper::Body, hyper::Body), HttpUtilError> {
+    let r = hyper::body::to_bytes(body).await;
+    match r {
+        Ok(b) => {
+            let cb1 = b.clone();
+            let cb2 = b.clone();
+            Ok((hyper::Body::from(cb1), hyper::Body::from(cb2)))
+        }
+        Err(e) => Err(HttpUtilError::BodyCopyError(e.to_string())),
+    }
 }

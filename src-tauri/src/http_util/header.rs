@@ -7,33 +7,72 @@ use hyper::{
 use serde_json::{Map, Value};
 use std::str::FromStr;
 
+use super::error::HttpUtilError;
+
 #[async_trait]
-impl crate::http_util::traits::Json for HeaderMap {
-    async fn from_json(json_data: String) -> Self {
-        let json_headers = json_data;
-        let headers_map_from_json: Map<String, Value> =
-            serde_json::from_str(&json_headers).unwrap();
-        let mut headers = HeaderMap::new();
-        for (name, value) in headers_map_from_json {
-            let header_name = HeaderName::from_str(name.as_str()).unwrap();
-            let header_value = HeaderValue::from_str(value.as_str().unwrap()).unwrap();
-            headers.append(header_name, header_value);
+impl crate::http_util::traits::HeaderMapMethods for HeaderMap {
+    async fn from_json(json_data: String) -> Result<HeaderMap, HttpUtilError> {
+        let json_h = json_data;
+        let r = serde_json::from_str(&json_h);
+        match r {
+            Ok(hashmap_h) => {
+                let hashmap_h: Map<String, Value> = hashmap_h;
+                let mut h = HeaderMap::new();
+                for (k, v) in hashmap_h {
+                    match HeaderName::from_str(k.as_str()) {
+                        Ok(k) => match v.as_str() {
+                            Some(v_str) => {
+                                match HeaderValue::from_str(v_str) {
+                                    Ok(v) => {
+                                        h.append(k, v);
+                                    }
+                                    Err(e) => {
+                                        return Err(HttpUtilError::JsonHeadersParseError(
+                                            e.to_string(),
+                                        ));
+                                    }
+                                };
+                            }
+                            None => {
+                                return Err(HttpUtilError::JsonHeadersParseError(
+                                    "header value is empty".to_string(),
+                                ));
+                            }
+                        },
+                        Err(e) => {
+                            return Err(HttpUtilError::JsonHeadersParseError(e.to_string()));
+                        }
+                    }
+                }
+                Ok(h)
+            }
+            Err(e) => Err(HttpUtilError::JsonHeadersParseError(e.to_string())),
         }
-        headers
     }
 
-    async fn to_json(&self) -> String {
+    async fn json(&self) -> Result<String, HttpUtilError> {
         let mut header_json_map = Map::<String, Value>::new();
         for (name, value) in self {
             let name = name.to_string();
-            let value = value.to_str().unwrap().to_string();
-            let value = Value::from(value);
-            let _ = header_json_map.insert(name, value);
+
+            match value.to_str() {
+                Ok(v_str) => {
+                    let value = Value::from(v_str);
+                    let _ = header_json_map.insert(name, value);
+                }
+                Err(e) => {
+                    return Err(HttpUtilError::HeaderConvertError(e.to_string()));
+                }
+            }
         }
-        serde_json::to_string(&header_json_map).unwrap()
+
+        match serde_json::to_string(&header_json_map) {
+            Ok(h) => Ok(h),
+            Err(e) => Err(HttpUtilError::HeaderConvertError(e.to_string())),
+        }
     }
 
-    fn check_encoding(&self) -> Result<(), String> {
+    fn check_encoding(&self) -> Result<(), HttpUtilError> {
         match self.get(ACCEPT_ENCODING) {
             Some(ae) => {
                 let ae_list: Vec<&str> = ae.to_str().unwrap().split(',').collect();
@@ -48,33 +87,31 @@ impl crate::http_util::traits::Json for HeaderMap {
     }
 }
 
-impl crate::http_util::traits::ToString for hyper::Version {
-    fn to_string(&self) -> String {
+impl crate::http_util::traits::VersionMethods for hyper::Version {
+    fn to_string(&self) -> Result<String, HttpUtilError> {
         match *self {
-            hyper::Version::HTTP_09 => "HTTP/0.9",
-            hyper::Version::HTTP_10 => "HTTP/1.0",
-            hyper::Version::HTTP_11 => "HTTP/1.1",
-            hyper::Version::HTTP_2 => "HTTP/2.0",
-            hyper::Version::HTTP_3 => "HTTP/3.0",
+            hyper::Version::HTTP_09 => Ok("HTTP/0.9".to_string()),
+            hyper::Version::HTTP_10 => Ok("HTTP/1.0".to_string()),
+            hyper::Version::HTTP_11 => Ok("HTTP/1.1".to_string()),
+            hyper::Version::HTTP_2 => Ok("HTTP/2.0".to_string()),
+            hyper::Version::HTTP_3 => Ok("HTTP/3.0".to_string()),
             _ => {
-                panic!("Invalid HTTP Version");
+                panic!("implementation for new http version is not available yet");
             }
         }
-        .to_string()
     }
-}
 
-impl crate::http_util::traits::FromStr for hyper::Version {
-    fn from_str(s: &str) -> Self {
+    fn from_str(s: &str) -> Result<hyper::Version, HttpUtilError> {
         match s {
-            "HTTP/0.9" => hyper::Version::HTTP_09,
-            "HTTP/1.0" => hyper::Version::HTTP_10,
-            "HTTP/1.1" => hyper::Version::HTTP_11,
-            "HTTP/2.0" => hyper::Version::HTTP_2,
-            "HTTP/3.0" => hyper::Version::HTTP_3,
-            _ => {
-                panic!("Invalid HTTP Version");
-            }
+            "HTTP/0.9" => Ok(hyper::Version::HTTP_09),
+            "HTTP/1.0" => Ok(hyper::Version::HTTP_10),
+            "HTTP/1.1" => Ok(hyper::Version::HTTP_11),
+            "HTTP/2.0" => Ok(hyper::Version::HTTP_2),
+            "HTTP/3.0" => Ok(hyper::Version::HTTP_3),
+            _ => Err(HttpUtilError::InvalidHttpVersionError(format!(
+                "{} is invalid version",
+                s
+            ))),
         }
     }
 }

@@ -7,6 +7,8 @@ use flate2::Compression;
 use http::HeaderValue;
 use std::io::prelude::*;
 
+use super::error::HttpUtilError;
+
 pub enum SupportedEncoding {
     Gzip,
     Deflate,
@@ -14,20 +16,25 @@ pub enum SupportedEncoding {
 }
 
 impl SupportedEncoding {
-    pub fn from(header: Option<&HeaderValue>) -> Result<Self, String> {
-        let v = {
+    pub fn from(header: Option<&HeaderValue>) -> Result<Self, HttpUtilError> {
+        let r = {
             if let Some(hv) = header {
-                hv.to_str().unwrap()
+                hv.to_str()
             } else {
-                ""
+                Ok("")
             }
         };
-        match v {
-            "gzip" => Ok(SupportedEncoding::Gzip),
-            "deflate" => Ok(SupportedEncoding::Deflate),
-            "identity" => Ok(SupportedEncoding::Identity),
-            "" => Ok(SupportedEncoding::Identity),
-            _ => Err("not supported encoding".to_string()),
+        match r {
+            Ok(v) => match v {
+                "gzip" => Ok(SupportedEncoding::Gzip),
+                "deflate" => Ok(SupportedEncoding::Deflate),
+                "identity" => Ok(SupportedEncoding::Identity),
+                "" => Ok(SupportedEncoding::Identity),
+                _ => {
+                    panic!("encoding check is not working");
+                }
+            },
+            Err(e) => Err(HttpUtilError::MakeSupportedEncodingError(e.to_string())),
         }
     }
 
@@ -39,53 +46,64 @@ impl SupportedEncoding {
         ]
     }
 
-    pub fn is_supported(v: &str) -> Result<(), String> {
+    pub fn is_supported(v: &str) -> Result<(), HttpUtilError> {
         match v {
             "gzip" => Ok(()),
             "deflate" => Ok(()),
             "identity" => Ok(()),
             "" => Ok(()),
-            _ => Err("not supported encoding".to_string()),
+            _ => Err(HttpUtilError::UnsupportedEncodingError(format!(
+                "content-encoding {} is not supported",
+                v
+            ))),
         }
     }
 
-    pub fn decode(&self, original: Bytes) -> Bytes {
+    pub fn decode(&self, original: Bytes) -> Result<Bytes, HttpUtilError> {
         match self {
             Self::Gzip => {
                 let ob = original.as_ref();
                 let mut gd = GzDecoder::new(ob);
                 let mut v = Vec::<u8>::new();
-                gd.read_to_end(&mut v).unwrap();
-                Bytes::from(v)
+                match gd.read_to_end(&mut v) {
+                    Ok(_) => Ok(Bytes::from(v)),
+                    Err(e) => Err(HttpUtilError::DecodeError(e.to_string())),
+                }
             }
             Self::Deflate => {
                 let ob = original.as_ref();
                 let mut dd = DeflateDecoder::new(ob);
                 let mut v = Vec::<u8>::new();
-                dd.read_to_end(&mut v).unwrap();
-                Bytes::from(v)
+                match dd.read_to_end(&mut v) {
+                    Ok(_) => Ok(Bytes::from(v)),
+                    Err(e) => Err(HttpUtilError::DecodeError(e.to_string())),
+                }
             }
-            Self::Identity => original,
+            Self::Identity => Ok(original),
         }
     }
 
-    pub fn encode(&self, encoded_bytes: Bytes) -> Bytes {
+    pub fn encode(&self, encoded_bytes: Bytes) -> Result<Bytes, HttpUtilError> {
         match self {
             Self::Gzip => {
                 let eb = encoded_bytes.as_ref();
                 let mut ge = GzEncoder::new(eb, Compression::best());
                 let mut v = Vec::new();
-                ge.read_to_end(&mut v);
-                Bytes::from(v)
+                match ge.read_to_end(&mut v) {
+                    Ok(_) => Ok(Bytes::from(v)),
+                    Err(e) => Err(HttpUtilError::EncodeError(e.to_string())),
+                }
             }
             Self::Deflate => {
                 let eb = encoded_bytes.as_ref();
                 let mut de = DeflateEncoder::new(eb, Compression::best());
                 let mut v = Vec::new();
-                de.read_to_end(&mut v);
-                Bytes::from(v)
+                match de.read_to_end(&mut v) {
+                    Ok(_) => Ok(Bytes::from(v)),
+                    Err(e) => Err(HttpUtilError::EncodeError(e.to_string())),
+                }
             }
-            Self::Identity => encoded_bytes,
+            Self::Identity => Ok(encoded_bytes),
         }
     }
 }

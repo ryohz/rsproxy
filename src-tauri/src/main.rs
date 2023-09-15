@@ -1,13 +1,11 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod common;
 mod http_util;
 mod proxy;
-mod types;
-use std::sync::{Arc, Mutex};
 
 use proxy::run_proxy_server;
+use std::sync::{Arc, Mutex};
 use tauri::Manager;
 
 #[tokio::main]

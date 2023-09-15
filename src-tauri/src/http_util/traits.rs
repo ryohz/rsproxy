@@ -1,16 +1,16 @@
 use async_trait::async_trait;
+use http::{HeaderMap, Version};
 
-pub trait ToString {
-    fn to_string(&self) -> String;
-}
+use super::error::HttpUtilError;
 
-pub trait FromStr {
-    fn from_str(s: &str) -> Self;
+pub trait VersionMethods {
+    fn to_string(&self) -> Result<String, HttpUtilError>;
+    fn from_str(s: &str) -> Result<Version, HttpUtilError>;
 }
 
 #[async_trait]
-pub trait Json {
-    async fn from_json(json_data: String) -> Self;
-    async fn to_json(&self) -> String;
-    fn check_encoding(&self) -> Result<(), String>;
+pub trait HeaderMapMethods {
+    async fn from_json(json_data: String) -> Result<HeaderMap, HttpUtilError>;
+    async fn json(&self) -> Result<String, HttpUtilError>;
+    fn check_encoding(&self) -> Result<(), HttpUtilError>;
 }
