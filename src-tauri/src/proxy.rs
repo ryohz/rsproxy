@@ -7,7 +7,7 @@ use tauri::AppHandle;
 
 use hyper::Server;
 
-use crate::http_util::{self, traits::Json};
+use crate::http_util::{self, traits::HeaderMapMethods};
 
 pub async fn run_proxy_server(pilot_state: Arc<Mutex<bool>>, app_handle: AppHandle) {
     let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
@@ -39,29 +39,92 @@ async fn handle(
     request.headers().check_encoding().unwrap();
 
     let request = if pilot_state(shared_pilot_state.clone()) {
-        let rq_front = http_util::request::Request::from_hyper(request).await;
-        rq_front.send_to_front(&app_handle).await;
-        let m_rq_front = rq_front.wait_for_modification(&app_handle).await;
-        m_rq_front.to_hyper().await
+        let rq_front = match http_util::request::Request::from_hyper(request).await {
+            Ok(rq) => rq,
+            Err(e) => {
+                panic!("proxy error: {}", e);
+            }
+        };
+        if let Err(e) = rq_front.send_to_front(&app_handle).await {
+            panic!("proxy error: {}", e);
+        }
+        let m_rq_front = match rq_front.wait_for_modification(&app_handle).await {
+            Ok(rq) => rq,
+            Err(e) => {
+                panic!("proxy error >>> {}", e);
+            }
+        };
+        match m_rq_front.to_hyper().await {
+            Ok(rq) => rq,
+            Err(e) => {
+                panic!("proxy error >>> {}", e);
+            }
+        }
     } else {
-        let (rq1, rq2) = http_util::request::copy_request(request).await;
-        let rq_front = http_util::request::Request::from_hyper(rq1).await;
-        rq_front.send_to_front(&app_handle).await;
+        let (rq1, rq2) = match http_util::request::copy_request(request).await {
+            Ok(t) => t,
+            Err(e) => {
+                panic!("proxy error >>> {}", e);
+            }
+        };
+        let rq_front = match http_util::request::Request::from_hyper(rq1).await {
+            Ok(rq) => rq,
+            Err(e) => {
+                panic!("proxy error >>> {}", e);
+            }
+        };
+        if let Err(e) = rq_front.send_to_front(&app_handle).await {
+            panic!("proxy error >>> {}", e);
+        }
         rq2
     };
 
     let client = hyper::Client::new();
-    let response = client.request(request).await.unwrap();
+    let response = match client.request(request).await {
+        Ok(rs) => rs,
+        Err(e) => {
+            panic!("proxy error >>> {}", e);
+        }
+    };
 
     if pilot_state(shared_pilot_state.clone()) {
-        let rs_front = http_util::response::Response::from_hyper(response).await;
-        rs_front.send_to_front(&app_handle).await;
-        let m_rs_front = rs_front.wait_for_modification(&app_handle).await;
-        m_rs_front.to_hyper().await
+        let rs_front = match http_util::response::Response::from_hyper(response).await {
+            Ok(rs) => rs,
+            Err(e) => {
+                panic!("proxy error >>> {}", e);
+            }
+        };
+        if let Err(e) = rs_front.send_to_front(&app_handle).await {
+            panic!("proxy error >>> {}", e);
+        }
+        let m_rs_front = match rs_front.wait_for_modification(&app_handle).await {
+            Ok(rs) => rs,
+            Err(e) => {
+                panic!("proxy error >>> {}", e);
+            }
+        };
+        match m_rs_front.to_hyper().await {
+            Ok(rs) => rs,
+            Err(e) => {
+                panic!("proxy error >>> {}", e)
+            }
+        }
     } else {
-        let (rs1, rs2) = http_util::response::copy_response(response).await;
-        let rs_front = http_util::response::Response::from_hyper(rs1).await;
-        rs_front.send_to_front(&app_handle).await;
+        let (rs1, rs2) = match http_util::response::copy_response(response).await {
+            Ok(t) => t,
+            Err(e) => {
+                panic!("proxy error >>> {}", e)
+            }
+        };
+        let rs_front = match http_util::response::Response::from_hyper(rs1).await {
+            Ok(rs) => rs,
+            Err(e) => {
+                panic!("proxy error >>> {}", e)
+            }
+        };
+        if let Err(e) = rs_front.send_to_front(&app_handle).await {
+            panic!("proxy error >>> {}", e)
+        }
         rs2
     }
 }

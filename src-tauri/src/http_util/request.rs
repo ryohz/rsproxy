@@ -110,7 +110,7 @@ impl Request {
         };
         match app_handle.emit_all("proxy-request", request_json) {
             Ok(_) => Ok(()),
-            Err(e) => return Err(HttpUtilError::RequestSendToFrontError(e.to_string())),
+            Err(e) => Err(HttpUtilError::RequestSendToFrontError(e.to_string())),
         }
     }
 

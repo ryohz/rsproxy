@@ -92,7 +92,7 @@ impl Response {
         };
         match app_handle.emit_all("proxy-response", rs_j) {
             Ok(_) => Ok(()),
-            Err(e) => return Err(HttpUtilError::ResponseSendToFrontError(e.to_string())),
+            Err(e) => Err(HttpUtilError::ResponseSendToFrontError(e.to_string())),
         }
     }
 
