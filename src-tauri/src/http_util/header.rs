@@ -6,8 +6,9 @@ use hyper::{
 };
 use serde_json::{Map, Value};
 use std::str::FromStr;
+use uuid::Uuid;
 
-use super::error::HttpUtilError;
+use super::{config::PAIR_ID_HEADER_NAME, error::HttpUtilError};
 
 #[async_trait]
 impl crate::http_util::traits::HeaderMapMethods for HeaderMap {
@@ -16,7 +17,8 @@ impl crate::http_util::traits::HeaderMapMethods for HeaderMap {
         let r = serde_json::from_str(&json_h);
         match r {
             Ok(hashmap_h) => {
-                let hashmap_h: Map<String, Value> = hashmap_h;
+                let mut hashmap_h: Map<String, Value> = hashmap_h;
+                hashmap_h.remove(PAIR_ID_HEADER_NAME);
                 let mut h = HeaderMap::new();
                 for (k, v) in hashmap_h {
                     match HeaderName::from_str(k.as_str()) {
@@ -50,8 +52,17 @@ impl crate::http_util::traits::HeaderMapMethods for HeaderMap {
         }
     }
 
-    async fn json(&self) -> Result<String, HttpUtilError> {
+    async fn json(&self, id: Option<&Uuid>) -> Result<String, HttpUtilError> {
         let mut header_json_map = Map::<String, Value>::new();
+        if let Some(id) = id {
+            let id_str = id
+                .as_bytes()
+                .iter()
+                .map(|b| format!("{:02X}", b))
+                .collect::<Vec<String>>()
+                .join("");
+            header_json_map.insert(PAIR_ID_HEADER_NAME.to_string(), Value::from(id_str));
+        }
         for (name, value) in self {
             let name = name.to_string();
 

@@ -1,5 +1,5 @@
 use hyper::{Body, HeaderMap, Method, Uri, Version};
-use serde::{Serialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::str::{self};
 use tauri::{AppHandle, Manager};
 use tokio::sync::mpsc;
@@ -31,10 +31,13 @@ impl Request {
         }
     }
 
-    pub async fn from_hyper(request: hyper::Request<hyper::Body>) -> Result<Self, HttpUtilError> {
+    pub async fn from_hyper(
+        request: hyper::Request<hyper::Body>,
+        pair_id: Option<&uuid::Uuid>,
+    ) -> Result<Self, HttpUtilError> {
         let (p, o_body) = request.into_parts();
 
-        let headers = match p.headers.json().await {
+        let headers = match p.headers.json(pair_id).await {
             Ok(h) => h,
             Err(e) => {
                 return Err(HttpUtilError::RequestFromHyperError(e.to_string()));

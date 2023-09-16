@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use tauri::AppHandle;
 use tauri::Manager;
 use tokio::sync::mpsc;
+use uuid::Uuid;
 
 use super::body::copy_body;
 use super::encode::SupportedEncoding;
@@ -31,12 +32,12 @@ impl Response {
         }
     }
 
-    pub async fn from_hyper(response: hyper::Response<hyper::Body>) -> Result<Self, HttpUtilError> {
+    pub async fn from_hyper(response: hyper::Response<hyper::Body>, pair_id: Option<&Uuid>) -> Result<Self, HttpUtilError> {
         let (p, s) = match decode_response(response).await {
             Ok(t) => t,
             Err(e) => return Err(HttpUtilError::ResponseFromHyperError(e.to_string())),
         };
-        let h = match p.headers.json().await {
+        let h = match p.headers.json(pair_id).await {
             Ok(h) => h,
             Err(e) => return Err(HttpUtilError::ResponseFromHyperError(e.to_string())),
         };

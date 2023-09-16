@@ -1,12 +1,12 @@
 <script lang="ts">
     import Sidebar from "./lib/components/sidebar/Sidebar.svelte";
-    import { features } from "./features";
+    // import { features } from "./features";
     import "./scss/app.css";
 
-    let current_mode = features.names()[1];
-    function update_mode(mode: string) {
-        current_mode = mode;
-    }
+    // let current_mode = features.names()[1];
+    // function update_mode(mode: string) {
+    //     current_mode = mode;
+    // }
 </script>
 
 <svelte:head>

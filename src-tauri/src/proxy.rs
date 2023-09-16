@@ -1,6 +1,7 @@
 use hyper::Server;
 use std::{
     convert::Infallible,
+    io::Read,
     net::SocketAddr,
     sync::{Arc, Mutex},
 };
@@ -35,10 +36,12 @@ async fn handle(
     shared_pilot_state: Arc<Mutex<bool>>,
     app_handle: AppHandle,
 ) -> hyper::Response<hyper::Body> {
+    let pair_id = uuid::Uuid::new_v4();
     request.headers().check_encoding().unwrap();
 
     let request = if pilot_state(shared_pilot_state.clone()) {
-        let rq_front = match http_util::request::Request::from_hyper(request).await {
+        let rq_front = match http_util::request::Request::from_hyper(request, Some(&pair_id)).await
+        {
             Ok(rq) => rq,
             Err(e) => {
                 panic!("proxy error: {}", e);
@@ -66,20 +69,19 @@ async fn handle(
                 panic!("proxy error >>> {}", e);
             }
         };
-        let rq_front = match http_util::request::Request::from_hyper(rq1).await {
+        let rq_front = match http_util::request::Request::from_hyper(rq1, Some(&pair_id)).await {
             Ok(rq) => rq,
             Err(e) => {
                 panic!("proxy error >>> {}", e);
             }
         };
+        println!("##########");
+        println!("{}",rq_front.headers);
         if let Err(e) = rq_front.send_to_front(&app_handle).await {
             panic!("proxy error >>> {}", e);
         }
         rq2
     };
-
-    println!("###########");
-    println!("{:?}", request.headers());
 
     let client = hyper::Client::new();
     let response = match client.request(request).await {
@@ -89,15 +91,14 @@ async fn handle(
         }
     };
 
-    println!("{:?},", response.headers());
-
     if pilot_state(shared_pilot_state.clone()) {
-        let rs_front = match http_util::response::Response::from_hyper(response).await {
-            Ok(rs) => rs,
-            Err(e) => {
-                panic!("proxy error >>> {}", e);
-            }
-        };
+        let rs_front =
+            match http_util::response::Response::from_hyper(response, Some(&pair_id)).await {
+                Ok(rs) => rs,
+                Err(e) => {
+                    panic!("proxy error >>> {}", e);
+                }
+            };
         if let Err(e) = rs_front.send_to_front(&app_handle).await {
             panic!("proxy error >>> {}", e);
         }
@@ -120,12 +121,13 @@ async fn handle(
                 panic!("proxy error >>> {}", e)
             }
         };
-        let rs_front = match http_util::response::Response::from_hyper(rs1).await {
+        let rs_front = match http_util::response::Response::from_hyper(rs1, Some(&pair_id)).await {
             Ok(rs) => rs,
             Err(e) => {
                 panic!("proxy error >>> {}", e)
             }
         };
+        println!("{}",rs_front.headers);
         if let Err(e) = rs_front.send_to_front(&app_handle).await {
             panic!("proxy error >>> {}", e)
         }
