@@ -139,6 +139,8 @@ export class Exchange {
             method: this.method,
         }
     }
+    
+    
 }
 
 function get_http_methods_string(method: HttpMethod | undefined): string {
@@ -171,7 +173,7 @@ export interface Part {
     id: number,
     type: ExchangeType,
     headers: string,
-    url: string,
+    url: string | undefined,
     status: number | undefined,
     method: HttpMethod | undefined
 }

@@ -15,9 +15,9 @@ async fn main() {
         .setup(|app| {
             // * proxy
             let pilot_state = Arc::new(Mutex::new(false));
-
             let pilot_state_alt = pilot_state.clone();
             let proxy_app_handle = app.app_handle();
+             
             tokio::spawn(async move {
                 run_proxy_server(pilot_state_alt, proxy_app_handle).await;
             });
@@ -39,3 +39,5 @@ async fn main() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
+

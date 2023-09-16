@@ -2,54 +2,6 @@
   overflow: scroll;
   background-color: #18181b;
   height: 100%;
-}
-.editor .header {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  height: 30px;
-  color: #71717a;
-  margin-left: 10px;
-  margin-top: 5px;
-  gap: 15px;
-}
-.editor .header .method {
-  display: flex;
-  flex-direction: row;
-  gap: 5px;
-  align-items: center;
-  font-size: 12px;
-  font-weight: bold;
-}
-.editor .header .status {
-  display: flex;
-  flex-direction: row;
-  gap: 5px;
-  align-items: center;
-  font-size: 12px;
-  font-weight: bold;
-}
-.editor .header .url {
-  display: flex;
-  flex-direction: row;
-  gap: 5px;
-  width: 50%;
-  align-items: center;
-  font-size: 12px;
-  font-weight: bold;
-}
-.editor .main {
   display: grid;
-  grid-template-columns: 90% 10%;
-}
-.editor .empty {
-  display: flex;
-  flex-direction: row;
-  gap: 5px;
-  align-items: center;
-  justify-content: center;
-  margin-top: 15px;
-}
-.editor .empty .empty-message {
-  font-size: large;
+  grid-template-rows: 25px 90%;
 }/*# sourceMappingURL=exchangeEditor.css.map */

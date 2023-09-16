@@ -1,5 +1,5 @@
 use hyper::{Body, HeaderMap, Method, Uri, Version};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Serialize};
 use std::str::{self};
 use tauri::{AppHandle, Manager};
 use tokio::sync::mpsc;
@@ -156,6 +156,8 @@ impl Request {
             None => Ok(Request::new()),
         }
     }
+
+    pub async fn label_pair() {}
 }
 
 pub async fn copy_request(

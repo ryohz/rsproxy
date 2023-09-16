@@ -2,6 +2,11 @@ body {
   background-color: #09090b;
   color: #e4e4e7;
   overflow: hidden;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
 }
 
 p {

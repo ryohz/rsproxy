@@ -1,11 +1,10 @@
+use hyper::Server;
 use std::{
     convert::Infallible,
     net::SocketAddr,
     sync::{Arc, Mutex},
 };
 use tauri::AppHandle;
-
-use hyper::Server;
 
 use crate::http_util::{self, traits::HeaderMapMethods};
 
@@ -79,6 +78,9 @@ async fn handle(
         rq2
     };
 
+    println!("###########");
+    println!("{:?}", request.headers());
+
     let client = hyper::Client::new();
     let response = match client.request(request).await {
         Ok(rs) => rs,
@@ -86,6 +88,8 @@ async fn handle(
             panic!("proxy error >>> {}", e);
         }
     };
+
+    println!("{:?},", response.headers());
 
     if pilot_state(shared_pilot_state.clone()) {
         let rs_front = match http_util::response::Response::from_hyper(response).await {

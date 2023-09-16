@@ -13,6 +13,7 @@
         gap: rule.$gap-size-1;
         height: 100%;
         width: rule.$content-size-medium-1;
+        text-transform: capitalize;
 
         &:hover {
             cursor: pointer;

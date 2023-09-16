@@ -5,63 +5,6 @@
     overflow: scroll;
     background-color: theme.$black2;
     height: 100%;
-
-    .header {
-        display: flex;
-        flex-direction: row;
-        width: 100%;
-        height: rule.$content-size-small-1;
-        color: theme.$gray3;
-        margin-left: rule.$gap-size-2;
-        margin-top: rule.$gap-size-1;
-        gap: rule.$gap-size-3;
-
-        .method {
-            display: flex;
-            flex-direction: row;
-            gap: rule.$gap-size-1;
-            align-items: center;
-            font-size: rule.$font-size-small-2;
-            font-weight: bold;
-        }
-
-        .status {
-            display: flex;
-            flex-direction: row;
-            gap: rule.$gap-size-1;
-            align-items: center;
-            font-size: rule.$font-size-small-2;
-            font-weight: bold;
-        }
-
-        .url {
-            display: flex;
-            flex-direction: row;
-            gap: rule.$gap-size-1;
-            width: 50%;
-            align-items: center;
-            font-size: rule.$font-size-small-2;
-            font-weight: bold;
-        }
-    }
-
-    .main {
-        display: grid;
-        grid-template-columns: 90% 10%;
-
-        .side {
-        }
-    }
-
-    .empty {
-        display: flex;
-        flex-direction: row;
-        gap: rule.$gap-size-1;
-        align-items: center;
-        justify-content: center;
-        margin-top: rule.$gap-size-3;
-        .empty-message {
-            font-size: large;
-        }
-    }
+    display: grid;
+    grid-template-rows: rule.$unit-size-small-3 90%;
 }

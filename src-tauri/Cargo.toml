@@ -18,13 +18,14 @@ tokio = { version = "1", features = ["full"] }
 hyper = { version = "0.14.27", features = ["full"] }
 thiserror = { version = "1.0.47" }
 tower = { version = "0.4.13", features = ["full"] }
-serde = "1.0.188"
-serde_json = "1.0.106"
 async-trait = "0.1.73"
 bytes = "1.5.0"
 futures = "0.3.28"
 http = "0.2.9"
 flate2 = "1.0.27"
+uuid = "1.4.1"
+serde_json = "1.0.107"
+serde = { version = "1.0.188", features = ["derive"] }
 
 
 [features]

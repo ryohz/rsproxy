@@ -1,6 +1,7 @@
 <script lang="ts">
     import "./box.css";
     import type { Component } from "../../types";
+    import { onMount } from "svelte";
 
     export let components: Component[];
 
@@ -9,7 +10,8 @@
     let origin: number;
     let state = false;
 
-    let border_size = "4px";
+    let border_size = "2px";
+
     let top_size = `calc(50% - (${border_size} / 2) + ${
         dif.toString() + "px"
     })`;
@@ -18,6 +20,7 @@
     })`;
 
     function init_orogin(event) {
+        document.body.style.cursor = "row-resize";
         state = true;
         if (!origin) {
             origin = event.clientY;
@@ -40,14 +43,11 @@
 
     function stop_resize(event) {
         state = false;
+        document.body.style.cursor = "auto";
     }
-
-    // afterUpdate(() => {
-    // });
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<!-- <div class='entire'> -->
 <div class="box" on:mouseup={stop_resize} on:mousemove={resize}>
     <div class="top content" style={`height: ${top_size};`}>
         <svelte:component
@@ -71,4 +71,3 @@
         />
     </div>
 </div>
-<!-- </div> -->
