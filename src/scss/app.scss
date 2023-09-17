@@ -11,6 +11,6 @@ body {
         width: 100%;
         height: 100vh;
         display: grid;
-        grid-template-columns: rule.$content-size-small-2 calc(100% - #{rule.$content-size-small-2});
+        grid-template-columns: rule.$content-size-small-1 calc(100% - #{rule.$content-size-small-1});
     }
 }

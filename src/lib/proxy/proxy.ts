@@ -2,7 +2,7 @@ import { emit, listen } from "@tauri-apps/api/event";
 import { get } from "svelte/store";
 import { writable, type Writable } from "svelte/store";
 import { capitalize } from "../common";
-import { type RustRequest, type RustResponse, Request, Response } from "../exchange";
+import { type RustRequest, type RustResponse, Request, Response, empty_response } from "../exchange";
 
 export const request_history: Writable<Request[]> = writable([]);
 export const response_history: Writable<Response[]> = writable([]);
@@ -27,5 +27,12 @@ export async function proxy_start() {
     });
 }
 
-request_history.subscribe(() => {
-});
+export function find_response(id: string): Response {
+    let responses = get(response_history);
+    let resp = responses.find(rs => rs.pair_id === id)
+    if (resp !== undefined) {
+        return resp;
+    } else {
+        return empty_response();
+    }
+}

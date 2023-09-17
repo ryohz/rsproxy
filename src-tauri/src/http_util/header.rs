@@ -15,41 +15,38 @@ impl crate::http_util::traits::HeaderMapMethods for HeaderMap {
     async fn from_json(json_data: String) -> Result<HeaderMap, HttpUtilError> {
         let json_h = json_data;
         let r = serde_json::from_str(&json_h);
-        match r {
-            Ok(hashmap_h) => {
-                let mut hashmap_h: Map<String, Value> = hashmap_h;
-                hashmap_h.remove(PAIR_ID_HEADER_NAME);
-                let mut h = HeaderMap::new();
-                for (k, v) in hashmap_h {
-                    match HeaderName::from_str(k.as_str()) {
-                        Ok(k) => match v.as_str() {
-                            Some(v_str) => {
-                                match HeaderValue::from_str(v_str) {
-                                    Ok(v) => {
-                                        h.append(k, v);
-                                    }
-                                    Err(e) => {
-                                        return Err(HttpUtilError::JsonHeadersParseError(
-                                            e.to_string(),
-                                        ));
-                                    }
-                                };
-                            }
-                            None => {
-                                return Err(HttpUtilError::JsonHeadersParseError(
-                                    "header value is empty".to_string(),
-                                ));
-                            }
-                        },
-                        Err(e) => {
-                            return Err(HttpUtilError::JsonHeadersParseError(e.to_string()));
-                        }
-                    }
-                }
-                Ok(h)
-            }
-            Err(e) => Err(HttpUtilError::JsonHeadersParseError(e.to_string())),
+
+        if let Err(e) = r {
+            return Err(HttpUtilError::JsonHeadersParseError(e.to_string()));
         }
+        let mut hashmap_h: Map<String, Value> = r.unwrap();
+
+        hashmap_h.remove(PAIR_ID_HEADER_NAME);
+        let mut h = HeaderMap::new();
+        for (k, v) in hashmap_h {
+            let r = HeaderName::from_str(k.as_str());
+            if let Err(e) = r {
+                return Err(HttpUtilError::JsonHeadersParseError(e.to_string()));
+            }
+            let k = r.unwrap();
+
+            let r = v.as_str();
+            if r.is_none() {
+                return Err(HttpUtilError::JsonHeadersParseError(
+                    "header value is empty".to_string(),
+                ));
+            }
+            let v_str = r.unwrap();
+
+            let r = HeaderValue::from_str(v_str);
+            if let Err(e) = r {
+                return Err(HttpUtilError::JsonHeadersParseError(e.to_string()));
+            }
+            let v = r.unwrap();
+
+            h.append(k, v);
+        }
+        Ok(h)
     }
 
     async fn json(&self, id: Option<&Uuid>) -> Result<String, HttpUtilError> {

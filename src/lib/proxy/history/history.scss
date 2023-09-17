@@ -1,0 +1,32 @@
+@use "../../../scss/rule";
+@use "../../../scss/theme";
+
+.history {
+    background-color: theme.$black2;
+    .list {
+        background-color: theme.$accent;
+
+        .exchange {
+            position: relative;
+            background-color: theme.$black2;
+            height: rule.$content-size-small-1;
+            display: flex;
+            flex-direction: row;
+            overflow: hidden;
+            align-items: center;
+            user-select: none;
+
+            &:hover {
+                cursor: pointer;
+                background-color: theme.$gray1
+            }
+
+            p {
+                user-select: none;
+                overflow: visible;
+                font-size: rule.$font-size-small-1;
+                margin-left: rule.$gap-size-3;
+            }
+        }
+    }
+}

@@ -1,8 +1,0 @@
-@use "../../../../scss/theme";
-@use "../../../../scss/rule";
-
-.list {
-    height: 100%;
-    background-color: theme.$black1;
-    overflow: scroll;
-}

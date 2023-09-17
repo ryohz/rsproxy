@@ -1,16 +1,11 @@
 <script lang="ts">
     import "./box.css";
-    import type { Component } from "../../types";
-    import { onMount } from "svelte";
 
-    export let components: Component[];
-
-    // export let dif = 0;
     export let dif = 0;
     let origin: number;
     let state = false;
 
-    let border_size = "2px";
+    let border_size = "4px";
 
     let top_size = `calc(50% - (${border_size} / 2) + ${
         dif.toString() + "px"
@@ -50,10 +45,7 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="box" on:mouseup={stop_resize} on:mousemove={resize}>
     <div class="top content" style={`height: ${top_size};`}>
-        <svelte:component
-            this={components[0].component}
-            {...components[0].props}
-        />
+        <slot name="top" />
     </div>
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div
@@ -65,9 +57,6 @@
     />
 
     <div class="bottom content" style={`height: ${bottom_size};`}>
-        <svelte:component
-            this={components[1].component}
-            {...components[1].props}
-        />
+        <slot name="bottom" />
     </div>
 </div>

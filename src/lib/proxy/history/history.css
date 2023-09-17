@@ -1,0 +1,30 @@
+.history {
+  background-color: #18181b;
+}
+.history .list {
+  background-color: #7c3aed;
+}
+.history .list .exchange {
+  position: relative;
+  background-color: #18181b;
+  height: 30px;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  align-items: center;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+}
+.history .list .exchange:hover {
+  cursor: pointer;
+  background-color: #3f3f46;
+}
+.history .list .exchange p {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  overflow: visible;
+  font-size: 10px;
+  margin-left: 15px;
+}/*# sourceMappingURL=history.css.map */

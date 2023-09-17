@@ -3,32 +3,29 @@
     import Icon from "@iconify/svelte";
     import "./tabs.css";
 
-    export let tab_objects: TabObject[];
-    export let current_mode: string;
-    export let change_mode: Function;
+    export let items: { name: string; icon: string }[];
+    export let current: string;
+    export let update: Function;
 </script>
 
 <div class="tabs">
-    {#each tab_objects as tab_object}
-        {#if tab_object.name === current_mode}
+    {#each items as item}
+        {#if item.name === current}
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <div
-                class="tab selected"
-                on:click={() => change_mode(tab_object.name)}
-            >
-                <Icon icon={tab_object.iconify} />
+            <div class="tab selected" on:click={() => update(item.name)}>
+                <Icon icon={item.icon} />
                 <p class="name">
-                    {tab_object.name}
+                    {item.name}
                 </p>
             </div>
         {:else}
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <div class="tab" on:click={() => change_mode(tab_object.name)}>
-                <Icon icon={tab_object.iconify} />
+            <div class="tab" on:click={() => update(item.name)}>
+                <Icon icon={item.icon} />
                 <p class="name">
-                    {tab_object.name}
+                    {item.name}
                 </p>
             </div>
         {/if}

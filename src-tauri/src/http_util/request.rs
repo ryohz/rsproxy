@@ -159,8 +159,6 @@ impl Request {
             None => Ok(Request::new()),
         }
     }
-
-    pub async fn label_pair() {}
 }
 
 pub async fn copy_request(

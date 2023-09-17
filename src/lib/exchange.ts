@@ -1,15 +1,16 @@
 import { capitalize } from "./common";
 
 export class Request {
-    headers: string;
-    version: string;
-    method: string;
-    url: string;
-    body: string;
-    piloted: boolean;
-    pair_id: string;
+    public headers: string;
+    public version: string;
+    public method: string;
+    public url: string;
+    public body: string;
+    public piloted: boolean;
+    public pair_id: string;
+    public is_empty: boolean;
 
-    constructor(args: RustRequest) {
+    constructor(args: RustRequest, empty?: boolean) {
         this.headers = args.headers;
         this.version = args.version;
         this.method = args.method;
@@ -18,12 +19,18 @@ export class Request {
         this.piloted = args.piloted;
         this.to_editable();
 
+        if (empty !== undefined) {
+            this.is_empty = empty;
+        } else {
+            this.is_empty = false;
+        }
+
         let headers: Record<string, string> = JSON.parse(this.headers);
-        this.pair_id = headers["Pair-Id"];
+        this.pair_id = headers["pair-id"];
     }
 
-    to_editable(): string {
-        let rq = "";
+    public to_editable(): string {
+        let rq = "\n";
         let headers: Record<string, string> = JSON.parse(this.headers);
 
         // method path version
@@ -45,27 +52,46 @@ export class Request {
     }
 }
 
-export class Response {
-    headers: string;
-    version: string;
-    status: string;
-    body: string;
-    piloted: boolean;
-    pair_id: string;
+export function empty_request(): Request {
+    return new Request({
+        headers: "{}",
+        version: "",
+        method: "",
+        url: "",
+        body: "empty request",
+        piloted: false,
+    },true);
+}
 
-    constructor(args: RustResponse) {
+export class Response {
+    public headers: string;
+    public version: string;
+    public status: string;
+    public body: string;
+    public piloted: boolean;
+    public pair_id: string;
+    public is_empty: boolean;
+
+    constructor(args: RustResponse, empty?: boolean) {
         this.headers = args.headers;
         this.version = args.version;
         this.status = args.status.toString();
         this.body = args.body;
         this.piloted = args.piloted;
 
+        if (empty !== undefined) {
+            this.is_empty = empty;
+        } else {
+            this.is_empty = false;
+        }
+
+
         let headers: Record<string, string> = JSON.parse(this.headers);
-        this.pair_id = headers["Pair-Id"];
+        this.pair_id = headers["pair-id"];
     }
 
-    to_editable(): string {
-        let rs = "";
+    public to_editable(): string {
+        let rs = "\n";
         let headers: Record<string, string> = JSON.parse(this.headers);
 
         // version, status
@@ -80,6 +106,16 @@ export class Response {
 
         return rs;
     }
+}
+
+export function empty_response(): Response {
+    return new Response({
+        headers: "{}",
+        status: 0,
+        version: "",
+        body: "empty response",
+        piloted: false
+    },true);
 }
 
 function headers_to_editable(headers: Record<string, string>): string {
