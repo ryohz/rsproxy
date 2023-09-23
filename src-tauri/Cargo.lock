@@ -2263,6 +2263,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e5ea92a5b6195c6ef2a0295ea818b312502c6fc94dde986c5553242e18fd4ce2"
 
 [[package]]
+name = "rsproxy"
+version = "0.0.0"
+dependencies = [
+ "async-trait",
+ "bytes",
+ "flate2",
+ "futures",
+ "http",
+ "hyper",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "thiserror",
+ "tokio",
+ "tower",
+ "uuid",
+]
+
+[[package]]
 name = "rustc-demangle"
 version = "0.1.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3417,26 +3437,6 @@ name = "wasm-bindgen-shared"
 version = "0.2.87"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ca6ad05a4870b2bf5fe995117d3728437bd27d7cd5f06f13c17443ef369775a1"
-
-[[package]]
-name = "web-sleuth"
-version = "0.0.0"
-dependencies = [
- "async-trait",
- "bytes",
- "flate2",
- "futures",
- "http",
- "hyper",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "thiserror",
- "tokio",
- "tower",
- "uuid",
-]
 
 [[package]]
 name = "webkit2gtk"
