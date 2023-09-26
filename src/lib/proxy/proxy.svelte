@@ -2,6 +2,7 @@
     import "./proxy.css";
     import Tabs from "../components/tabs/Tabs.svelte";
     import History from "./history/history.svelte";
+    import Pilot from "./pilot/pilot.svelte";
 
     let items: { name: string; icon: string }[] = [
         { name: "history", icon: "material-symbols:history" },
@@ -17,5 +18,7 @@
     <Tabs {items} {current} {update} />
     {#if current === "history"}
         <History />
-    {:else if current === "pilot"}{/if}
+    {:else if current === "pilot"}
+        <Pilot />
+    {/if}
 </div>

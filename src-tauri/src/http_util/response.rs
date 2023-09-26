@@ -13,26 +13,27 @@ use super::traits::HeaderMapMethods;
 use super::traits::VersionMethods;
 
 #[derive(Serialize, Deserialize)]
-pub struct Response {
+pub struct ResponseForFront {
     pub headers: String,
     pub body: String,
     pub status: u16,
     pub version: String,
-    pub piloted: bool,
 }
 
-impl Response {
+impl ResponseForFront {
     pub fn new() -> Self {
-        Response {
+        ResponseForFront {
             headers: "".to_string(),
             body: "".to_string(),
             version: "".to_string(),
             status: 500,
-            piloted: false,
         }
     }
 
-    pub async fn from_hyper(response: hyper::Response<hyper::Body>, pair_id: Option<&Uuid>) -> Result<Self, HttpUtilError> {
+    pub async fn from_hyper(
+        response: hyper::Response<hyper::Body>,
+        pair_id: Option<&Uuid>,
+    ) -> Result<Self, HttpUtilError> {
         let (p, s) = match decode_response(response).await {
             Ok(t) => t,
             Err(e) => return Err(HttpUtilError::ResponseFromHyperError(e.to_string())),
@@ -50,7 +51,6 @@ impl Response {
             version: v,
             status: p.status.as_u16(),
             body: s,
-            piloted: false,
         })
     }
 
@@ -134,7 +134,7 @@ impl Response {
 
         match reciever.recv().await {
             Some(rs) => rs,
-            None => Ok(Response::new()),
+            None => Ok(ResponseForFront::new()),
         }
     }
 }

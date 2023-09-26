@@ -17,7 +17,7 @@
   font-size: 20px;
 }
 .bar .icons .icon:hover {
-  color: #7c3aed;
+  color: #0d9488;
   cursor: pointer;
 }
 .bar .icons .other {
@@ -27,7 +27,7 @@
   margin-top: 15px;
 }
 .bar .icons .selected {
-  color: #7c3aed;
+  color: #0d9488;
 }
 .bar .others:first-child {
   margin-top: 30px;

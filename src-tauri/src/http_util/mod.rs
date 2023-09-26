@@ -5,4 +5,5 @@ pub mod header;
 pub mod request;
 pub mod response;
 pub mod traits;
+pub mod tls;
 mod config;

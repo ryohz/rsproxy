@@ -1,20 +1,57 @@
+// {
+//   "extends": "@tsconfig/svelte/tsconfig.json",
+//   "compilerOptions": {
+//     "target": "ES6",
+//     "useDefineForClassFields": true,
+//     "module": "ES6",
+//     "resolveJsonModule": true,
+//     /**
+//      * Typecheck JS in `.svelte` and `.js` files by default.
+//      * Disable checkJs if you'd like to use dynamic types in JS.
+//      * Note that setting allowJs false does not prevent the use
+//      * of JS in `.svelte` files.
+//      */
+//     "allowJs": true,
+//     "checkJs": true,
+//     "isolatedModules": true
+//   },
+//   "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],
+//   "references": [{ "path": "./tsconfig.node.json" }]
+// }
 {
   "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
-    "target": "ESNext",
+    /* Basic Options */
+    "target": "ES6",
+    "module": "ES2015",
     "useDefineForClassFields": true,
-    "module": "ESNext",
     "resolveJsonModule": true,
-    /**
-     * Typecheck JS in `.svelte` and `.js` files by default.
-     * Disable checkJs if you'd like to use dynamic types in JS.
-     * Note that setting allowJs false does not prevent the use
-     * of JS in `.svelte` files.
-     */
-    "allowJs": true,
-    "checkJs": true,
-    "isolatedModules": true
+    "sourceMap": true,
+    "removeComments": true,
+    "noEmitOnError": true,
+    "isolatedModules": true,
+    /* Strict Type-Checking Options */
+    "strict": true,
+    /* Additional Checks */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    /* Module Resolution Options */
+    "esModuleInterop": true,
+    /* Experimental Options */
+    "experimentalDecorators": true,
+    /* Advanced Options */
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": [
+    "src/**/*.d.ts",
+    "src/**/*.ts",
+    "src/**/*.svelte"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }

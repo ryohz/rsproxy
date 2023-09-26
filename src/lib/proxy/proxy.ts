@@ -1,11 +1,8 @@
 import { emit, listen } from "@tauri-apps/api/event";
 import { get } from "svelte/store";
 import { writable, type Writable } from "svelte/store";
-import { capitalize } from "../common";
 import { type RustRequest, type RustResponse, Request, Response, empty_response } from "../exchange";
-
-export const request_history: Writable<Request[]> = writable([]);
-export const response_history: Writable<Response[]> = writable([]);
+import { request_history, response_history } from "./history/history";
 
 export async function proxy_start() {
     await listen<string>("proxy-request", (e) => {
@@ -27,12 +24,42 @@ export async function proxy_start() {
     });
 }
 
-export function find_response(id: string): Response {
-    let responses = get(response_history);
-    let resp = responses.find(rs => rs.pair_id === id)
-    if (resp !== undefined) {
-        return resp;
-    } else {
-        return empty_response();
+
+export const pilot_state = writable(false);
+export const pilot_exchange_list: Writable<(Request | Response)[]> = writable([]);
+
+request_history.subscribe(() => {
+    // ** pilot state management
+    if (get(pilot_state)) {
+        console.log("hello");
+        let reqs = get(request_history);
+        pilot_exchange_list.update(list => {
+            let item = reqs[reqs.length - 1];
+            if (item !== undefined) {
+                list.push(item);
+            }
+            return list;
+        });
     }
-}
+});
+
+response_history.subscribe(() => {
+    // ** pilot state management
+    if (get(pilot_state)) {
+        let ress = get(response_history);
+        pilot_exchange_list.update(list => {
+            let item = ress[ress.length - 1];
+            if (item !== undefined) {
+                list.push(ress[ress.length - 1])
+            }
+            return list;
+        });
+    }
+});
+
+pilot_state.subscribe(() => {
+    emit("pilot-state", get(pilot_state));
+});
+
+
+

@@ -1,0 +1,15 @@
+.pilot {
+  background-color: #18181b;
+  display: grid;
+  grid-template-rows: 30px calc(100% - 30px);
+}
+.pilot .top {
+  background-color: #18181b;
+  display: flex;
+  align-items: center;
+}
+.pilot .top .btn {
+  margin-left: 5px;
+  margin-top: 5px;
+  height: calc(100% - 5px);
+}/*# sourceMappingURL=pilot.css.map */

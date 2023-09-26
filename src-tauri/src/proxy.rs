@@ -1,4 +1,5 @@
 use hyper::Server;
+use hyper_tls::HttpsConnector;
 use std::{
     convert::Infallible,
     io::Read,
@@ -24,9 +25,9 @@ pub async fn run_proxy_server(pilot_state: Arc<Mutex<bool>>, app_handle: AppHand
             ))
         }
     });
-    let server = Server::bind(&addr).serve(make_service);
+    let server = Server::bind(&addr).serve(make_service).await;
 
-    if let Err(e) = server.await {
+    if let Err(e) = server {
         println!("error: {}", e);
     }
 }
@@ -37,16 +38,18 @@ async fn handle(
     app_handle: AppHandle,
 ) -> hyper::Response<hyper::Body> {
     let pair_id = uuid::Uuid::new_v4();
+    println!("{:?}", request.method());
     request.headers().check_encoding().unwrap();
 
     let request = if pilot_state(shared_pilot_state.clone()) {
-        let rq_front = match http_util::request::Request::from_hyper(request, Some(&pair_id)).await
+        let rq_front = match http_util::request::RequestForFront::from_hyper(request, Some(&pair_id)).await
         {
             Ok(rq) => rq,
             Err(e) => {
                 panic!("proxy error: {}", e);
             }
         };
+
         if let Err(e) = rq_front.send_to_front(&app_handle).await {
             panic!("proxy error: {}", e);
         }
@@ -69,31 +72,31 @@ async fn handle(
                 panic!("proxy error >>> {}", e);
             }
         };
-        let rq_front = match http_util::request::Request::from_hyper(rq1, Some(&pair_id)).await {
+        let rq_front = match http_util::request::RequestForFront::from_hyper(rq1, Some(&pair_id)).await {
             Ok(rq) => rq,
             Err(e) => {
                 panic!("proxy error >>> {}", e);
             }
         };
-        println!("##########");
-        println!("{}",rq_front.headers);
         if let Err(e) = rq_front.send_to_front(&app_handle).await {
             panic!("proxy error >>> {}", e);
         }
         rq2
     };
 
-    let client = hyper::Client::new();
-    let response = match client.request(request).await {
-        Ok(rs) => rs,
-        Err(e) => {
-            panic!("proxy error >>> {}", e);
+    let response = {
+        let https = HttpsConnector::new();
+        let client = hyper::Client::builder().build::<_, hyper::Body>(https);
+        let resp = client.request(request).await;
+        if resp.is_err() {
+            panic!("proxy error >>> {}", resp.unwrap_err());
         }
+        resp.unwrap()
     };
 
     if pilot_state(shared_pilot_state.clone()) {
         let rs_front =
-            match http_util::response::Response::from_hyper(response, Some(&pair_id)).await {
+            match http_util::response::ResponseForFront::from_hyper(response, Some(&pair_id)).await {
                 Ok(rs) => rs,
                 Err(e) => {
                     panic!("proxy error >>> {}", e);
@@ -121,13 +124,12 @@ async fn handle(
                 panic!("proxy error >>> {}", e)
             }
         };
-        let rs_front = match http_util::response::Response::from_hyper(rs1, Some(&pair_id)).await {
+        let rs_front = match http_util::response::ResponseForFront::from_hyper(rs1, Some(&pair_id)).await {
             Ok(rs) => rs,
             Err(e) => {
                 panic!("proxy error >>> {}", e)
             }
         };
-        println!("{}",rs_front.headers);
         if let Err(e) = rs_front.send_to_front(&app_handle).await {
             panic!("proxy error >>> {}", e)
         }

@@ -45,4 +45,6 @@ pub enum HttpUtilError {
     ResponseCopyError(String),
     #[error(" >>> failed to decode response >>> `{0}`")]
     ResponseDecodeError(String),
+    #[error(" >>> failed to generate self-certificate >>> `{0}`")]
+    CertificateGenerateError(String)
 }

@@ -10,24 +10,22 @@ use super::traits::HeaderMapMethods;
 use super::traits::VersionMethods;
 
 #[derive(Serialize, Deserialize)]
-pub struct Request {
+pub struct RequestForFront {
     pub headers: String,
     pub url: String,
     pub method: String,
     pub version: String,
     pub body: String,
-    pub piloted: bool,
 }
 
-impl Request {
+impl RequestForFront {
     pub fn new() -> Self {
-        Request {
+        RequestForFront {
             headers: "".to_string(),
             url: "".to_string(),
             method: "".to_string(),
             version: "".to_string(),
             body: "".to_string(),
-            piloted: false,
         }
     }
 
@@ -62,15 +60,12 @@ impl Request {
             Err(e) => return Err(HttpUtilError::RequestFromHyperError(e.to_string())),
         };
 
-        let piloted = false;
-
-        Ok(Request {
+        Ok(RequestForFront {
             headers,
             url,
             method,
             version,
             body,
-            piloted,
         })
     }
 
@@ -155,8 +150,15 @@ impl Request {
         });
 
         match reciever.recv().await {
-            Some(rq) => rq,
-            None => Ok(Request::new()),
+            Some(r) => match r {
+                Ok(rq) => {
+                    let mut rq: RequestForFront= rq;
+                    rq.url = self.url.clone();
+                    Ok(rq)
+                }
+                Err(e) => Err(e),
+            },
+            None => Ok(RequestForFront::new()),
         }
     }
 }

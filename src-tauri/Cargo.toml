@@ -26,6 +26,10 @@ flate2 = "1.0.27"
 uuid = "1.4.1"
 serde_json = "1.0.107"
 serde = { version = "1.0.188", features = ["derive"] }
+hyper-tls = "0.5.0"
+native-tls = "0.2.11"
+tokio-native-tls = "0.3.1"
+rcgen = "0.11.2"
 
 
 [features]

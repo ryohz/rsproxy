@@ -17,12 +17,12 @@ async fn main() {
             let pilot_state = Arc::new(Mutex::new(false));
             let pilot_state_alt = pilot_state.clone();
             let proxy_app_handle = app.app_handle();
-             
+
             tokio::spawn(async move {
                 run_proxy_server(pilot_state_alt, proxy_app_handle).await;
             });
 
-            app.listen_global("change_pilot_state", move |event| {
+            app.listen_global("pilot-state", move |event| {
                 let mut pilot_state = pilot_state.lock().unwrap();
                 let pilot_state_str = event.payload().unwrap();
                 if pilot_state_str == "true" {
@@ -40,4 +40,5 @@ async fn main() {
         .expect("error while running tauri application");
 }
 
+// openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out cert.pem
 

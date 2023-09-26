@@ -1,17 +1,32 @@
 <script lang="ts">
     import { get, writable, type Writable } from "svelte/store";
-    import {
-        empty_request,
-        empty_response,
-        Response,
-        type Request,
-    } from "../../exchange";
-    import { find_response, response_history } from "../../proxy/proxy";
+    import { Response, type Request } from "../../exchange";
     import Tabs from "../tabs/Tabs.svelte";
     import "./exchangeEditor.css";
+    import AnExchangeEditor from "../anExchangeEditor/anExchangeEditor.svelte";
 
-    export let request: Request;
-    export let response: Response;
+    export let request: Writable<Request | undefined>;
+    export let response: Writable<Response | undefined>;
+
+    let request_content = writable("");
+    let response_content = writable("");
+
+    let req = get(request);
+    if (req !== undefined) {
+        request_content.set(req.to_editable());
+    }
+    let res = get(response) as Response;
+    response_content.set(res.to_editable());
+
+    request.subscribe((req) => {
+        if (req !== undefined) {
+            request_content.set(req.to_editable());
+        }
+    });
+
+    response.subscribe((res) => {
+        response_content.set((res as Response).to_editable());
+    });
 
     let items: { name: string; icon: string }[] = [
         { name: "request", icon: "" },
@@ -26,18 +41,8 @@
 <div class="editor">
     <Tabs {items} {current} {update} />
     {#if current === "request"}
-        {#if !request.is_empty}
-            <pre>
-            {request.to_editable()}
-        </pre>
-            <!-- {:else} -->
-        {/if}
+        <AnExchangeEditor content={request_content} />
     {:else if current === "response"}
-        {#if !response.is_empty}
-            <pre>
-            {response.to_editable()}
-        </pre>
-            <!-- {:else} -->
-        {/if}
+        <AnExchangeEditor content={response_content} />
     {/if}
 </div>

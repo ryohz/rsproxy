@@ -1,0 +1,22 @@
+@use "../../../scss/rule";
+@use "../../../scss/theme";
+
+$top_size: rule.$content-size-small-1;
+
+.pilot {
+    background-color: theme.$black2;
+    display: grid;
+    grid-template-rows: $top_size calc(100% - $top_size);
+
+    .top {
+        background-color: theme.$black2;
+        // background-color: red;
+        display: flex;
+        align-items: center;
+        .btn {
+            margin-left: rule.$gap-size-1;
+            margin-top: rule.$gap-size-1;
+            height: calc(100% - rule.$gap-size-1);
+        }
+    }
+}

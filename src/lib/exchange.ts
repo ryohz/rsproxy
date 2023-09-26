@@ -6,7 +6,6 @@ export class Request {
     public method: string;
     public url: string;
     public body: string;
-    public piloted: boolean;
     public pair_id: string;
     public is_empty: boolean;
 
@@ -16,7 +15,6 @@ export class Request {
         this.method = args.method;
         this.url = args.url;
         this.body = args.body;
-        this.piloted = args.piloted;
         this.to_editable();
 
         if (empty !== undefined) {
@@ -30,12 +28,12 @@ export class Request {
     }
 
     public to_editable(): string {
-        let rq = "\n";
+        let rq = "";
         let headers: Record<string, string> = JSON.parse(this.headers);
-
         // method path version
         let host = headers['host'];
         let path = "/"
+        console.log(this.url);
         if (host !== undefined) {
             path = this.url.split(host)[1];
         }
@@ -50,6 +48,57 @@ export class Request {
 
         return rq;
     }
+
+}
+
+// 0 "GET /index.html HTTP/1.1"
+// 1 "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=…"
+// 2 "Accept-Encoding: gzip, deflate"
+// 3 "Accept-Language: en-US,en;q=0.9"
+// 4 "Cache-Control: max-age=0"
+// 5 "Host: www.chiseki.go.jp"
+// 6 "Proxy-Connection: keep-alive"
+// 7 ": 1"
+// 8 "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
+// 9 ""
+// 10 ""
+export interface EditableRequest {
+    url: string,
+    content: string,
+}
+
+export function to_request(req_str: string) {
+    let req_str_list = req_str.split("\n");
+    let parts = req_str_list[0].split(" ");
+    let headers: Record<string, string> = {};
+    let body = ""
+    let now = "h"
+    let first_empty_flag = false;
+    for (let i = 1; i < req_str_list.length - 1; i++) {
+        let item = req_str_list[i]
+        console.log(item);
+        if (item === "" && !first_empty_flag) {
+            first_empty_flag = true;
+            continue;
+        }
+        if (!first_empty_flag) {
+            let h_str_list = item.split(" ");
+            let name_part_list = h_str_list[0].split("-");
+            let name_list: string[] = []
+            name_part_list.forEach(item => {
+                name_list.push(item.toLowerCase())
+            });
+            let name = name_list.join("-");
+
+            let value = h_str_list[1]
+            headers[name] = value;
+        } else {
+            body += item + "\n";
+        }
+    }
+
+    let method = parts[0];
+
 }
 
 export function empty_request(): Request {
@@ -59,8 +108,7 @@ export function empty_request(): Request {
         method: "",
         url: "",
         body: "empty request",
-        piloted: false,
-    },true);
+    }, true);
 }
 
 export class Response {
@@ -68,7 +116,6 @@ export class Response {
     public version: string;
     public status: string;
     public body: string;
-    public piloted: boolean;
     public pair_id: string;
     public is_empty: boolean;
 
@@ -77,7 +124,6 @@ export class Response {
         this.version = args.version;
         this.status = args.status.toString();
         this.body = args.body;
-        this.piloted = args.piloted;
 
         if (empty !== undefined) {
             this.is_empty = empty;
@@ -91,7 +137,7 @@ export class Response {
     }
 
     public to_editable(): string {
-        let rs = "\n";
+        let rs = "";
         let headers: Record<string, string> = JSON.parse(this.headers);
 
         // version, status
@@ -114,30 +160,23 @@ export function empty_response(): Response {
         status: 0,
         version: "",
         body: "empty response",
-        piloted: false
-    },true);
+    }, true);
 }
 
 function headers_to_editable(headers: Record<string, string>): string {
-    let rq = "";
+    let h = "";
     for (const key in headers) {
         let parts = key.split("-");
-        let part1 = parts[0];
-        let header_name = ""
-        if (parts.length === 2) {
-            let part2 = parts[1];
-            part1 = capitalize(part1);
-            part2 = capitalize(part2);
-            header_name = `${part1}-${part2}`;
-        } else if (parts.length === 1) {
-            header_name = capitalize(part1);
-        }
-
+        let upper_parts: string[] = []
+        parts.forEach(part => {
+            upper_parts.push(capitalize(part));
+        });
+        let header_name = upper_parts.join("-");
         if (header_name !== "Pair-Id") {
-            rq += `${header_name}: ${headers[key]}\n`;
+            h += `${header_name}: ${headers[key]}\n`;
         }
     }
-    return rq;
+    return h;
 }
 
 export interface RustRequest {
@@ -146,7 +185,6 @@ export interface RustRequest {
     method: string;
     url: string;
     body: string;
-    piloted: boolean;
 }
 
 export interface RustResponse {
@@ -154,5 +192,4 @@ export interface RustResponse {
     version: string;
     status: number;
     body: string;
-    piloted: boolean;
 }

@@ -1,26 +1,20 @@
 <script lang="ts">
     import "./history.css";
     import Box from "../../components/box/box.svelte";
-    import { empty_request, Response, type Request } from "../../exchange";
-    import { get, writable, type Writable } from "svelte/store";
-    import { find_response, request_history } from "../proxy";
+    import { type Request } from "../../exchange";
+    import { get } from "svelte/store";
+    import { request_history } from "./history";
     import ExchangeEditor from "../../components/exchangeEditor/exchangeEditor.svelte";
-    import { current_request } from "./history";
-    import { afterUpdate } from "svelte";
+    import { current_request, current_response } from "./history";
 
     let requests: Request[] = get(request_history);
     request_history.subscribe(() => {
         requests = get(request_history);
     });
 
-    let current = get(current_request);
-
     function update(rq: Request) {
         current_request.set(rq);
-        current = rq;
-        console.log(find_response(current.pair_id));
     }
-    
 </script>
 
 <div class="history">
@@ -36,8 +30,8 @@
             {/each}
         </div>
         <ExchangeEditor
-            request={current}
-            response={find_response(current.pair_id)}
+            request={current_request}
+            response={current_response}
             slot="bottom"
         />
     </Box>
